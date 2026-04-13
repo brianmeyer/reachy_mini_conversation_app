@@ -57,6 +57,18 @@ AVAILABLE_VOICES: list[str] = [
     "verse",
 ]
 
+# Voices supported by the Gemini Live API
+GEMINI_AVAILABLE_VOICES: list[str] = [
+    "Aoede",
+    "Charon",
+    "Fenrir",
+    "Kore",
+    "Leda",
+    "Orus",
+    "Puck",
+    "Zephyr",
+]
+
 logger = logging.getLogger(__name__)
 
 
@@ -92,11 +104,7 @@ def _collect_tool_module_names(tools_root: Path) -> set[str]:
     if not tools_root.exists() or not tools_root.is_dir():
         return set()
     ignored = {"__init__", "core_tools"}
-    return {
-        p.stem
-        for p in tools_root.glob("*.py")
-        if p.is_file() and p.stem not in ignored
-    }
+    return {p.stem for p in tools_root.glob("*.py") if p.is_file() and p.stem not in ignored}
 
 
 def _raise_on_name_collisions(
@@ -150,8 +158,9 @@ else:
 class Config:
     """Configuration class for the conversation app."""
 
-    # Required
+    # Required (one of these depending on MODEL_NAME)
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # The key is downloaded in console.py if needed
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
     # Optional
     MODEL_NAME = os.getenv("MODEL_NAME", "gpt-realtime")
@@ -217,8 +226,7 @@ class Config:
             )
         else:
             logger.info(
-                "'REACHY_MINI_EXTERNAL_PROFILES_DIRECTORY' is not set. "
-                "Using built-in profiles from %s.",
+                "'REACHY_MINI_EXTERNAL_PROFILES_DIRECTORY' is not set. Using built-in profiles from %s.",
                 DEFAULT_PROFILES_DIRECTORY,
             )
 
@@ -229,13 +237,15 @@ class Config:
                 self.TOOLS_DIRECTORY,
             )
         else:
-            logger.info(
-                "'REACHY_MINI_EXTERNAL_TOOLS_DIRECTORY' is not set. "
-                "Using built-in shared tools only."
-            )
+            logger.info("'REACHY_MINI_EXTERNAL_TOOLS_DIRECTORY' is not set. Using built-in shared tools only.")
 
 
 config = Config()
+
+
+def is_gemini_model() -> bool:
+    """Return True if the configured MODEL_NAME is a Gemini Live model."""
+    return config.MODEL_NAME.lower().startswith("gemini")
 
 
 def set_custom_profile(profile: str | None) -> None:

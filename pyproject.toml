@@ -20,6 +20,8 @@ dependencies = [
     "python-dotenv",
     #OpenAI
     "openai>=2.30.0",
+    #Gemini (used by --realtime Gemini Live handler; cascade Gemini provider uses the same dep)
+    "google-genai>=1.0.0",
     #Reachy mini
     "reachy_mini_dances_library",
     "reachy_mini_toolbox",
