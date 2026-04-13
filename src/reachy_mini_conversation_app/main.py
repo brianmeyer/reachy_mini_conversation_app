@@ -58,7 +58,7 @@ def run(
 
     if robot is None:
         try:
-            robot_kwargs: dict[str, Any] = {}
+            robot_kwargs = {}
             if args.robot_name is not None:
                 robot_kwargs["robot_name"] = args.robot_name
 
