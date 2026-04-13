@@ -1,88 +1,84 @@
 ---
-title: Reachy Mini ChatBox
-emoji: 💬
+title: Reachy Mini Conversation App
+emoji: 🎤
 colorFrom: red
 colorTo: blue
 sdk: static
 pinned: false
-short_description: Live chat with Reachy Mini!
+short_description: Talk with Reachy Mini!
 suggested_storage: large
 tags:
  - reachy_mini
  - reachy_mini_python_app
 ---
 
-# Reachy Mini ChatBox
+# Reachy Mini conversation app
 
-A modular voice conversation app for the [Reachy Mini](https://github.com/pollen-robotics/reachy_mini/) robot. Cheap to run, versatile, customizable, and fun.
-
-ChatBox uses a **cascade pipeline** — ASR → LLM → TTS — where each stage is a swappable provider. Mix cloud APIs and local models, tweak the personality, add live reactions to keywords, and let the robot dance.
+Conversational app for the Reachy Mini robot combining OpenAI's realtime APIs, vision pipelines, and choreographed motion libraries.
 
 ![Reachy Mini Dance](docs/assets/reachy_mini_dance.gif)
 
-## How it works
+## Table of contents
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Running the app](#running-the-app)
+- [LLM tools](#llm-tools-exposed-to-the-assistant)
+- [Advanced features](#advanced-features)
+- [Contributing](#contributing)
+- [License](#license)
 
-```
-🎤 Microphone
-    │
-    ▼
-┌─────────┐     ┌─────────┐     ┌─────────┐     🔊 Speaker
-│   ASR   │ ──▶ │   LLM   │ ──▶ │   TTS   │ ──▶ 🤖 Robot moves
-└─────────┘     └─────────┘     └─────────┘
- Speech to       Reasoning       Text to
- text            + tool calls    speech
-```
+## Overview
+- Real-time audio conversation loop powered by the OpenAI realtime API and `fastrtc` for low-latency streaming.
+- Vision processing uses gpt-realtime by default (when camera tool is used), with optional on-device local vision using SmolVLM2 (CPU/GPU/MPS) via `--local-vision`.
+- Layered motion system queues primary moves (dances, emotions, goto poses, breathing) while blending speech-reactive wobble and head-tracking.
+- Async tool dispatch integrates robot motion, camera capture, and optional head-tracking capabilities through a Gradio web UI with live transcripts.
 
-Voice Activity Detection (VAD) segments microphone input. The ASR provider transcribes it, the LLM generates a response (with optional tool calls for head movements, dances, emotions, camera…), and the TTS provider speaks it back — all while the robot animates.
+## Architecture
+
+The app follows a layered architecture connecting the user, AI services, and robot hardware:
+
+<p align="center">
+  <img src="docs/assets/conversation_app_arch.svg" alt="Architecture Diagram" width="600"/>
+</p>
 
 ## Installation
 
 > [!IMPORTANT]
-> Before using this app, install [Reachy Mini's SDK](https://github.com/pollen-robotics/reachy_mini/).
+> Before using this app, you need to install [Reachy Mini's SDK](https://github.com/pollen-robotics/reachy_mini/).<br>
+> Windows support is currently experimental and has not been extensively tested. Use with caution.
 
 <details open>
 <summary><b>Using uv (recommended)</b></summary>
 
+Set up the project quickly using [uv](https://docs.astral.sh/uv/):
+
 ```bash
-# Create venv
+# macOS (Homebrew)
+uv venv --python /opt/homebrew/bin/python3.12 .venv
+
+# Linux / Windows (Python in PATH)
 uv venv --python python3.12 .venv
+
 source .venv/bin/activate
-
-# Install with cascade pipeline
-uv sync --extra cascade
+uv sync
 ```
 
-Install additional providers as needed:
+> **Note:** To reproduce the exact dependency set from this repo's `uv.lock`, run `uv sync --frozen`. This ensures `uv` installs directly from the lockfile without re-resolving or updating any versions.
 
+**Install optional features:**
 ```bash
-uv sync --extra cascade_parakeet_progressive  # Parakeet ASR (Apple Silicon)
-uv sync --extra cascade_kokoro                # Kokoro TTS (local)
-uv sync --extra cascade_gemini                # Gemini LLM
-uv sync --extra cascade_elevenlabs            # ElevenLabs TTS
-uv sync --extra cascade_deepgram              # Deepgram ASR
-uv sync --extra cascade_parakeet              # Parakeet batch/RNNT ASR (Apple Silicon)
-uv sync --extra cascade_voxtral_mlx           # Voxtral ASR (Apple Silicon)
-uv sync --extra cascade_nemotron              # NeMo ASR (CUDA)
-uv sync --extra cascade_gradium               # Gradium TTS (Python ≥3.12)
-uv sync --extra cascade_all                   # All cascade providers
-```
-
-Vision and head-tracking extras:
-
-```bash
-uv sync --extra yolo_vision          # YOLO head-tracking
-uv sync --extra mediapipe_vision     # MediaPipe head-tracking
-uv sync --extra local_vision         # Local VLM (SmolVLM2)
+uv sync --extra local_vision         # Local PyTorch/Transformers vision
+uv sync --extra yolo_vision          # YOLO face-detection backend for head tracking
+uv sync --extra mediapipe_vision     # MediaPipe-based head-tracking
 uv sync --extra all_vision           # All vision features
 ```
 
-Combine extras freely:
-
+Combine extras or include dev dependencies:
 ```bash
-uv sync --extra cascade --extra cascade_kokoro --extra cascade_gemini --extra yolo_vision --group dev
+uv sync --extra all_vision --group dev
 ```
-
-> **Tip:** Use `uv sync --frozen` to install from the lockfile without re-resolving.
 
 </details>
 
@@ -92,339 +88,225 @@ uv sync --extra cascade --extra cascade_kokoro --extra cascade_gemini --extra yo
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e ".[cascade]"
-
-# Add providers
-pip install -e ".[cascade_kokoro]"
-pip install -e ".[cascade_gemini]"
-# etc.
+pip install -e .
 ```
+
+**Install optional features:**
+```bash
+pip install -e .[local_vision]          # Local vision stack
+pip install -e .[yolo_vision]           # YOLO face-detection backend for head tracking
+pip install -e .[mediapipe_vision]      # MediaPipe-based vision
+pip install -e .[all_vision]            # All vision features
+pip install -e .[dev]                   # Development tools
+```
+
+Some wheels (like PyTorch) are large and require compatible CUDA or CPU builds—make sure your platform matches the binaries pulled in by each extra.
 
 </details>
 
-### Optional extras reference
+### Optional dependency groups
 
 | Extra | Purpose | Notes |
 |-------|---------|-------|
-| `cascade` | Base cascade pipeline (sounddevice, librosa, PyYAML) | Required for cascade mode |
-| `cascade_parakeet_progressive` | Parakeet MLX progressive ASR | Apple Silicon only |
-| `cascade_kokoro` | Kokoro local TTS | Any PyTorch platform |
-| `cascade_gemini` | Google Gemini LLM | Requires `GEMINI_API_KEY` |
-| `cascade_deepgram` | Deepgram streaming ASR | Requires `DEEPGRAM_API_KEY` |
-| `cascade_elevenlabs` | ElevenLabs TTS | Requires `ELEVENLABS_API_KEY` |
-| `cascade_parakeet` | Parakeet batch/RNNT ASR | Apple Silicon only |
-| `cascade_voxtral_mlx` | Voxtral Mini 4B multilingual ASR | Apple Silicon only |
-| `cascade_nemotron` | NeMo Parakeet/Nemotron ASR | CUDA GPU required |
-| `cascade_silero_vad` | Silero VAD (torch-based) | Optional VAD backend |
-| `cascade_gradium` | Gradium streaming TTS | Python ≥3.12, requires `GRADIUM_API_KEY` |
-| `cascade_all` | All cascade providers | Excludes gradium (Python ≥3.12) |
-| `local_vision` | Local VLM (SmolVLM2) via PyTorch/Transformers | GPU recommended |
-| `yolo_vision` | YOLO head-tracking | CPU or GPU |
-| `mediapipe_vision` | MediaPipe head-tracking | CPU |
-| `all_vision` | All vision extras | — |
+| `local_vision` | Run the local VLM (SmolVLM2) through PyTorch/Transformers | GPU recommended. Ensure compatible PyTorch builds for your platform. |
+| `yolo_vision` | YOLOv11n face detection via `ultralytics` and `supervision` | Used as the `yolo` head-tracking backend. Runs on CPU (default). GPU improves performance. |
+| `mediapipe_vision` | Lightweight landmark tracking with MediaPipe | Works on CPU. Enables `--head-tracker mediapipe`. |
+| `all_vision` | Convenience alias installing every vision extra | Install when you want the flexibility to experiment with every provider. |
+| `dev` | Developer tooling (`pytest`, `ruff`, `mypy`) | Development-only dependencies. Use `--group dev` with uv or `[dev]` with pip. |
+
+**Note:** `dev` is a dependency group (not an optional dependency). With uv, use `--group dev`. With pip, use `[dev]`.
 
 ## Configuration
 
-### Environment variables
+1. Copy `.env.example` to `.env`
+2. Fill in required values, notably the OpenAI API key
 
-Copy `.env.example` to `.env` and fill in the API keys for the providers you use:
-
-| Variable | Used by |
-|----------|---------|
-| `OPENAI_API_KEY` | Whisper ASR, OpenAI Realtime ASR, GPT LLMs, OpenAI TTS |
-| `GEMINI_API_KEY` | Gemini LLMs |
-| `DEEPGRAM_API_KEY` | Deepgram ASR |
-| `ELEVENLABS_API_KEY` | ElevenLabs TTS |
-| `GRADIUM_API_KEY` | Gradium TTS |
-| `HF_HOME` | Cache dir for Hugging Face models (default: `./cache`) |
-| `HF_TOKEN` | Hugging Face access for gated models |
-| `REACHY_MINI_CUSTOM_PROFILE` | Select a profile (default: `default`) |
-| `REACHY_MINI_EXTERNAL_PROFILES_DIRECTORY` | Path to external profiles |
-| `REACHY_MINI_EXTERNAL_TOOLS_DIRECTORY` | Path to external tool modules |
-| `AUTOLOAD_EXTERNAL_TOOLS` | Set `1` to auto-load all external tools |
-
-### cascade.yaml
-
-The `cascade.yaml` file at the project root controls which providers are used and their settings. Structure:
-
-```yaml
-asr:
-  provider: parakeet_mlx_progressive   # Which ASR to use
-  providers:
-    parakeet_mlx_progressive:          # Provider definitions
-      module: parakeet_mlx_progressive
-      class: ParakeetMLXProgressiveASR
-      streaming: true
-      location: local
-      hardware: apple_silicon
-      # Provider-specific settings
-      model: mlx-community/parakeet-tdt-0.6b-v3
-      precision: float16
-
-llm:
-  provider: gemini-2.5-flash-lite      # Which LLM to use
-  temperature: 1.0
-  providers: { ... }
-
-tts:
-  provider: kokoro                     # Which TTS to use
-  trim_silence: true
-  providers: { ... }
-```
-
-Change `provider:` under each section to switch. You can also override from the CLI with `--asr-provider`, `--llm-provider`, or `--tts-provider`.
-
-#### ASR providers
-
-| Provider | Location | Streaming | Hardware | Install extra | API key |
-|----------|----------|-----------|----------|---------------|---------|
-| `parakeet_mlx_progressive` | Local | Yes | Apple Silicon | `cascade_parakeet_progressive` | — |
-| `voxtral_mlx` | Local | Yes | Apple Silicon | `cascade_voxtral_mlx` | — |
-| `parakeet_nemo_progressive` | Local | Yes | CUDA | `cascade_nemotron` | — |
-| `nemotron` | Local | Yes | CUDA | `cascade_nemotron` | — |
-| `deepgram` | Cloud | Yes | — | `cascade_deepgram` | `DEEPGRAM_API_KEY` |
-| `openai_realtime_asr` | Cloud | Yes | — | — | `OPENAI_API_KEY` |
-| `whisper_openai` | Cloud | No (batch) | — | — | `OPENAI_API_KEY` |
-
-#### LLM providers
-
-| Provider | Location | Model | Install extra | API key |
-|----------|----------|-------|---------------|---------|
-| `gemini-2.5-flash-lite` | Cloud | `gemini-2.5-flash-lite` | `cascade_gemini` | `GEMINI_API_KEY` |
-| `gemini-3.1-flash-lite` | Cloud | `gemini-3.1-flash-lite-preview` | `cascade_gemini` | `GEMINI_API_KEY` |
-| `gpt-4o-mini` | Cloud | `gpt-4o-mini` | — | `OPENAI_API_KEY` |
-| `gpt-5.2-chat` | Cloud | `gpt-5.2-chat-latest` | — | `OPENAI_API_KEY` |
-
-#### TTS providers
-
-| Provider | Location | Hardware | Install extra | API key |
-|----------|----------|----------|---------------|---------|
-| `kokoro` | Local | Any (PyTorch) | `cascade_kokoro` | — |
-| `tts_openai` | Cloud | — | — | `OPENAI_API_KEY` |
-| `elevenlabs` | Cloud | — | `cascade_elevenlabs` | `ELEVENLABS_API_KEY` |
-| `gradium` | Cloud | — | `cascade_gradium` | `GRADIUM_API_KEY` |
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | Required. Grants access to the OpenAI realtime endpoint. |
+| `MODEL_NAME` | Override the realtime model (defaults to `gpt-realtime`). Used for both conversation and vision (unless `--local-vision` flag is used). |
+| `HF_HOME` | Cache directory for local Hugging Face downloads (only used with `--local-vision` flag, defaults to `./cache`). |
+| `HF_TOKEN` | Optional token for Hugging Face access (for gated/private assets). |
+| `LOCAL_VISION_MODEL` | Hugging Face model path for local vision processing (only used with `--local-vision` flag, defaults to `HuggingFaceTB/SmolVLM2-2.2B-Instruct`). |
 
 ## Running the app
 
-> [!TIP]
-> Make sure the Reachy Mini daemon is running before launching. See [Reachy Mini's SDK](https://github.com/pollen-robotics/reachy_mini/) for setup.
+Activate your virtual environment, then launch:
 
 ```bash
-reachy-mini-conversation-app --gradio
+reachy-mini-conversation-app
 ```
+
+> [!TIP]
+> Make sure the Reachy Mini daemon is running before launching the app. If you see a `TimeoutError`, it means the daemon isn't started. See [Reachy Mini's SDK](https://github.com/pollen-robotics/reachy_mini/) for setup instructions.
+
+The app runs in console mode by default. Add `--gradio` to launch a web UI at http://127.0.0.1:7860/ (required for simulation mode). Vision and head-tracking options are described in the CLI table below.
 
 ### CLI options
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--gradio` | `False` | Launch Gradio web UI at http://127.0.0.1:7860/. Without this, runs in console mode with VAD. |
-| `--asr-provider NAME` | from yaml | Override ASR provider (e.g. `deepgram`, `whisper_openai`) |
-| `--llm-provider NAME` | from yaml | Override LLM provider (e.g. `gpt-4o-mini`, `gemini-2.5-flash-lite`) |
-| `--tts-provider NAME` | from yaml | Override TTS provider (e.g. `kokoro`, `elevenlabs`) |
-| `--head-tracker {yolo,mediapipe}` | `None` | Enable head-tracking. Requires the matching vision extra. |
-| `--no-camera` | `False` | Run without camera. |
-| `--local-vision` | `False` | Use local VLM (SmolVLM2) instead of cloud vision. Requires `local_vision` extra. |
-| `--autotest [FILE]` | — | Run automated testing with text utterances (default file: `cascade/autotest.txt`). |
-| `--realtime` | `False` | Use OpenAI realtime audio-to-audio API instead of cascade. |
-| `--robot-name NAME` | `None` | Connect to a specific robot when multiple daemons run on the same subnet. |
-| `--debug` | `False` | Verbose logging. |
+| `--head-tracker {yolo,mediapipe}` | `None` | Select a head-tracking backend when a camera is available. `yolo` uses a local YOLO face detector, `mediapipe` comes from the `reachy_mini_toolbox` package. Requires the matching optional extra. |
+| `--no-camera` | `False` | Run without camera capture or head tracking. |
+| `--local-vision` | `False` | Use the local vision model (SmolVLM2) for camera-tool requests instead of gpt-realtime vision. Requires `local_vision` extra to be installed. |
+| `--gradio` | `False` | Launch the Gradio web UI. Without this flag, runs in console mode. Required when running in simulation mode. |
+| `--robot-name` | `None` | Optional. Connect to a specific robot by name when running multiple daemons on the same subnet. See [Multiple robots on the same subnet](#advanced-features). |
+| `--debug` | `False` | Enable verbose logging for troubleshooting. |
 
 ### Examples
 
 ```bash
-# Gradio UI with YOLO head-tracking
-reachy-mini-conversation-app --gradio --head-tracker yolo
+# Run with MediaPipe head tracking
+reachy-mini-conversation-app --head-tracker mediapipe
 
-# Console mode (no UI, VAD-based)
-reachy-mini-conversation-app
+# Run with the YOLO face-detection backend for head tracking
+reachy-mini-conversation-app --head-tracker yolo
 
-# Override providers from CLI
-reachy-mini-conversation-app --gradio --asr-provider deepgram --llm-provider gpt-4o-mini
+# Run with local vision processing (requires local_vision extra)
+reachy-mini-conversation-app --local-vision
 
-# Audio-only (no camera)
-reachy-mini-conversation-app --gradio --no-camera
+# Audio-only conversation (no camera)
+reachy-mini-conversation-app --no-camera
 
-# Automated testing
-reachy-mini-conversation-app --autotest
+# Launch with Gradio web interface
+reachy-mini-conversation-app --gradio
 ```
 
-## Profiles
+> [!WARNING]
+> `--local-vision` is not supported when running the conversation app directly on Reachy Mini Wireless / the Raspberry Pi. For local vision, keep the daemon running on the robot and start the conversation app from your laptop or workstation instead.
 
-Profiles define the robot's personality: what it says, how it sounds, and which tools it can use.
+## LLM tools exposed to the assistant
 
-Each profile is a folder under `src/reachy_mini_conversation_app/profiles/<name>/` containing:
+| Tool | Action | Dependencies |
+|------|--------|--------------|
+| `move_head` | Queue a head pose change (left/right/up/down/front). | Core install only. |
+| `camera` | Capture the latest camera frame and analyze it with gpt-realtime or the local vision model. | Requires camera worker. Uses local vision when `--local-vision` is enabled. |
+| `head_tracking` | Enable or disable head-tracking offsets (not identity recognition - only detects and tracks head position). | Camera worker with configured head tracker (`--head-tracker`). |
+| `dance` | Queue a dance from `reachy_mini_dances_library`. | Core install only. |
+| `stop_dance` | Clear queued dances. | Core install only. |
+| `play_emotion` | Play a recorded emotion clip via Hugging Face datasets. | Core install only. Uses the default open emotions dataset: [`pollen-robotics/reachy-mini-emotions-library`](https://huggingface.co/datasets/pollen-robotics/reachy-mini-emotions-library). |
+| `stop_emotion` | Clear queued emotions. | Core install only. |
+| `do_nothing` | Explicitly remain idle. | Core install only. |
 
-| File | Required | Purpose |
-|------|----------|---------|
-| `instructions.txt` | Yes | System prompt — the robot's personality and behavior rules |
-| `tools.txt` | Recommended | Enabled tools, one per line. Falls back to `default/tools.txt` if missing. |
-| `voice.txt` | Optional | TTS voice name override (single line) |
-| `reactions.yaml` | Optional | Live reaction triggers (see [Live reactions](#live-reactions)) |
-| `*.py` | Optional | Custom tool implementations |
+## Advanced features
 
-### Selecting a profile
+Built-in motion content is published as open Hugging Face datasets:
+- Emotions: [`pollen-robotics/reachy-mini-emotions-library`](https://huggingface.co/datasets/pollen-robotics/reachy-mini-emotions-library)
+- Dances: [`pollen-robotics/reachy-mini-dances-library`](https://huggingface.co/datasets/pollen-robotics/reachy-mini-dances-library)
 
-- **Environment variable:** `REACHY_MINI_CUSTOM_PROFILE=pirate` in `.env`
-- **Gradio UI:** Open the "Personality" accordion to switch profiles, edit instructions, or create new ones.
+<details>
+<summary><b>Custom profiles</b></summary>
 
-### Template placeholders in instructions.txt
+Create custom profiles with dedicated instructions and enabled tools.
 
-Reuse shared prompt snippets by referencing files under `src/reachy_mini_conversation_app/prompts/`:
+Set `REACHY_MINI_CUSTOM_PROFILE=<name>` to load `profiles/<name>/` (see `.env.example`). If unset, the `default` profile is used.
 
+Each profile should include `instructions.txt` (prompt text). `tools.txt` (list of allowed tools) is recommended. If missing for a non-default profile, the app falls back to `profiles/default/tools.txt`. Profiles can optionally contain custom tool implementations.
+
+**Custom instructions:**
+
+Write plain-text prompts in `instructions.txt`. To reuse shared prompt pieces, add lines like:
 ```
 [passion_for_lobster_jokes]
 [identities/witty_identity]
 ```
+Each placeholder pulls the matching file under `src/reachy_mini_conversation_app/prompts/` (nested paths allowed). See `profiles/example/` for a reference layout.
 
-### Locked profile mode
+**Enabling tools:**
 
-Set `LOCKED_PROFILE` in `src/reachy_mini_conversation_app/config.py` to lock the app to a single profile. The Gradio UI shows "(locked)" and disables profile editing. Useful for dedicated app variants.
-
-## Live reactions
-
-Reactions let the robot respond to keywords or entities in real time — *while the user is still speaking* — without waiting for the LLM.
-
-Define them in `profiles/<name>/reactions.yaml`:
-
-```yaml
-- name: music_excitement
-  callback: excited_about_music
-  trigger:
-    words: [music, guitar, piano, drum, violin]
-
-- name: food_reaction
-  callback: react_to_food_entity
-  trigger:
-    entities: [food]
-  repeatable: true
-
-- name: groovy_dance
-  callback: do_groovy_dance
-  trigger:
-    all:
-      - words: [danc*]
-      - words: [groov*]
-
-- name: reachy_name
-  callback: react_to_name
-  trigger:
-    words: [reachy, richie, reechy]
-  params:
-    emotion: helpful1
+List enabled tools in `tools.txt`, one per line. Prefix with `#` to comment out:
 ```
+play_emotion
+# move_head
 
-### Trigger types
+# My custom tool defined locally
+sweep_look
+```
+Tools are resolved first from Python files in the profile folder (custom tools), then from the core library `src/reachy_mini_conversation_app/tools/` (like `dance`, `head_tracking`).
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `words` | Keyword/glob match on transcript | `[music, danc*, "grand piano"]` |
-| `entities` | Named entity recognition via GLiNER | `[food, person, location]` |
-| `all` | Boolean AND — all sub-triggers must match | See `groovy_dance` above |
+**Custom tools:**
 
-### Behavior
+On top of built-in tools found in the core library, you can implement custom tools specific to your profile by adding Python files in the profile folder.
+Custom tools must subclass `reachy_mini_conversation_app.tools.core_tools.Tool` (see `profiles/example/sweep_look.py`).
 
-- Reactions fire **at most once per conversation turn** by default.
-- Set `repeatable: true` to allow multiple triggers per turn (deduplicated by entity text for entity triggers).
-- `params` are passed as `**kwargs` to the callback.
+**Edit personalities from the UI:**
 
-### Callback signature
+When running with `--gradio`, open the "Personality" accordion:
+- Select among available profiles (folders under `profiles/`) or the built‑in default.
+- Click "Apply" to update the current session instructions live.
+- Create a new personality by entering a name and instructions text. It stores files under `profiles/<name>/` and copies `tools.txt` from the `default` profile.
 
-Each `callback` value maps to a Python module in the profile folder exporting an async function:
+Note: The "Personality" panel updates the conversation instructions. Tool sets are loaded at startup from `tools.txt` and are not hot‑reloaded.
 
+</details>
+
+<details>
+<summary><b>Locked profile mode</b></summary>
+
+To create a locked variant of the app that cannot switch profiles, edit `src/reachy_mini_conversation_app/config.py` and set the `LOCKED_PROFILE` constant to the desired profile name:
 ```python
-async def my_callback(deps: ToolDependencies, match: TriggerMatch, **kwargs) -> None:
-    ...
+LOCKED_PROFILE: str | None = "mars_rover"  # Lock to this profile
 ```
+When `LOCKED_PROFILE` is set, the app always uses that profile, ignoring `REACHY_MINI_CUSTOM_PROFILE` env var & the Gradio UI shows "(locked)" and disables all profile editing controls.
+This is useful for creating dedicated clones of the app with a fixed personality. Clone scripts can simply edit this constant to lock the variant.
 
-`match.words` contains matched keywords; `match.entities` contains matched entities (with `.text`, `.label`, `.confidence`).
-
-## LLM tools
-
-Tools the LLM can call during a conversation:
-
-| Tool | Action |
-|------|--------|
-| `speak` | Synthesize and play a speech segment (used internally by the pipeline) |
-| `dance` | Queue a dance from the dances library |
-| `stop_dance` | Clear queued dances |
-| `play_emotion` | Play a recorded emotion clip from [pollen-robotics/reachy-mini-emotions-library](https://huggingface.co/datasets/pollen-robotics/reachy-mini-emotions-library) |
-| `stop_emotion` | Clear queued emotions |
-| `move_head` | Move head to a named position (left/right/up/down/front) |
-| `see_image_through_camera` | Capture a camera frame and send it to the LLM for analysis |
-| `describe_camera_image` | Describe the current camera view |
-| `head_tracking` | Enable/disable head-tracking (requires `--head-tracker`) |
-| `task_status` | Check status of a background task |
-| `task_cancel` | Cancel a running background task |
-| `do_nothing` | Explicitly remain idle |
-
-Profiles can also define custom tools (e.g. `turn_left`, `turn_right`, `center_position` in the default profile).
-
-## Advanced features
+</details>
 
 <details>
 <summary><b>External profiles and tools</b></summary>
 
-Store profiles and tools outside the source tree:
+You can extend the app with profiles/tools stored outside the repository defaults.
+
+- Core profiles are under `profiles/`.
+- Core tools are under `src/reachy_mini_conversation_app/tools/`.
+
+**Recommended layout:**
 
 ```text
 external_content/
 ├── external_profiles/
 │   └── my_profile/
 │       ├── instructions.txt
-│       ├── tools.txt
-│       └── voice.txt
+│       ├── tools.txt        # optional (see fallback behavior below)
+│       └── voice.txt        # optional
 └── external_tools/
     └── my_custom_tool.py
 ```
 
-Set in `.env`:
+**Environment variables:**
+
+Set these values in your `.env` (copy from `.env.example`):
 
 ```env
 REACHY_MINI_CUSTOM_PROFILE=my_profile
 REACHY_MINI_EXTERNAL_PROFILES_DIRECTORY=./external_content/external_profiles
 REACHY_MINI_EXTERNAL_TOOLS_DIRECTORY=./external_content/external_tools
+# Optional convenience mode:
+# AUTOLOAD_EXTERNAL_TOOLS=1
 ```
 
-- **Default mode:** `tools.txt` must list every tool explicitly. Names resolve against built-in tools first, then external tools.
-- **Auto-load mode** (`AUTOLOAD_EXTERNAL_TOOLS=1`): all `*.py` modules in the external tools directory are loaded automatically.
+**Loading behavior:**
+
+- **Default/strict mode**: `tools.txt` defines enabled tools explicitly. Every name in `tools.txt` must resolve to either a built-in tool (`src/reachy_mini_conversation_app/tools/`) or an external tool module in `REACHY_MINI_EXTERNAL_TOOLS_DIRECTORY`.
+- **Convenience mode** (`AUTOLOAD_EXTERNAL_TOOLS=1`): all valid `*.py` tool files in `REACHY_MINI_EXTERNAL_TOOLS_DIRECTORY` are auto-added.
+- **External profile fallback**: if the selected external profile has no `tools.txt`, the app falls back to built-in `profiles/default/tools.txt`.
+
+This supports both:
+1. Downloaded external tools used with built-in/default profile.
+2. Downloaded external profiles used with built-in default tools.
 
 </details>
 
 <details>
 <summary><b>Multiple robots on the same subnet</b></summary>
 
+If you run multiple Reachy Mini daemons on the same network, use:
+
 ```bash
 reachy-mini-conversation-app --robot-name <name>
 ```
 
-`<name>` must match the daemon's `--robot-name` value.
-
-</details>
-
-<details>
-<summary><b>Autotest mode</b></summary>
-
-Run the full pipeline with synthetic text utterances instead of a microphone:
-
-```bash
-reachy-mini-conversation-app --autotest
-reachy-mini-conversation-app --autotest my_test_script.txt
-```
-
-Each line in the test file is treated as a user utterance. Useful for end-to-end testing without audio hardware.
-
-</details>
-
-<details>
-<summary><b>OpenAI Realtime mode (legacy)</b></summary>
-
-The original audio-to-audio mode using OpenAI's realtime API is still available:
-
-```bash
-reachy-mini-conversation-app --realtime --gradio
-```
-
-This bypasses the cascade pipeline entirely. Requires `OPENAI_API_KEY`.
+`<name>` must match the daemon's `--robot-name` value so the app connects to the correct robot.
 
 </details>
 

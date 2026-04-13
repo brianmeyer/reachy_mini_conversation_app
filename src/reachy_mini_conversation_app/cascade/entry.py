@@ -92,9 +92,6 @@ def run_cascade_mode(
     else:
         logger.warning("No camera worker available (deps.camera_worker is None)")
 
-    if deps.vision_manager:
-        deps.vision_manager.start()
-
     # Start cascade handler (only for Gradio mode - console mode runs synchronously)
     if args.gradio:
         handler.start()
@@ -121,8 +118,6 @@ def run_cascade_mode(
             deps.head_wobbler.stop()
         if deps.camera_worker:
             deps.camera_worker.stop()
-        if deps.vision_manager:
-            deps.vision_manager.stop()
 
         # Ensure media is explicitly closed before disconnecting
         try:

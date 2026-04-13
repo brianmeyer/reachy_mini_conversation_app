@@ -49,7 +49,7 @@ class SileroVAD:
 
         # Load Silero VAD model
         logger.info("Loading Silero VAD model...")
-        self.model, _utils = torch.hub.load(  # type: ignore[no-untyped-call]
+        self.model, _utils = torch.hub.load(
             "snakers4/silero-vad",
             "silero_vad",
             trust_repo=True,

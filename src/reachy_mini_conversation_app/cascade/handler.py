@@ -85,7 +85,7 @@ class CascadeHandler:
 
         # Dynamic tool gating based on available capabilities
         exclusion_list: list[str] = []
-        if deps.vision_manager is None:
+        if deps.vision_processor is None:
             exclusion_list.append("describe_camera_image")
 
         # Get tool specs and convert to Chat Completions format

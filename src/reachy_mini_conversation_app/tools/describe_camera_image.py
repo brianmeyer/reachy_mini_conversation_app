@@ -47,9 +47,9 @@ class DescribeCameraImage(Tool):
             logger.error("Camera worker not available")
             return {"error": "Camera worker not available"}
 
-        if deps.vision_manager is None:
-            logger.error("Vision manager not available (required for describe_camera_image)")
-            return {"error": "Vision manager not available — use see_image_through_camera instead"}
+        if deps.vision_processor is None:
+            logger.error("Vision processor not available (required for describe_camera_image)")
+            return {"error": "Vision processor not available — use see_image_through_camera instead"}
 
         frame = deps.camera_worker.get_latest_frame()
         if frame is None:
@@ -57,7 +57,7 @@ class DescribeCameraImage(Tool):
             return {"error": "No frame available"}
 
         vision_result = await asyncio.to_thread(
-            deps.vision_manager.processor.process_image, frame, image_query,
+            deps.vision_processor.process_image, frame, image_query,
         )
         if isinstance(vision_result, dict) and "error" in vision_result:
             return vision_result
