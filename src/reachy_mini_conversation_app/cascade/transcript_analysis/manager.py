@@ -51,7 +51,7 @@ class TranscriptAnalysisManager:
 
     def _build_keyword_analyzer(self, reactions: list[ReactionConfig]) -> Any | None:
         """Build KeywordAnalyzer from reactions with word triggers."""
-        from .keyword_analyzer import KeywordAnalyzer
+        from .keyword import KeywordAnalyzer
 
         reaction_words: dict[str, list[str]] = {}
         for r in reactions:
@@ -84,7 +84,7 @@ class TranscriptAnalysisManager:
             return None
 
         try:
-            from .entity_analyzer import EntityAnalyzer
+            from .entity import EntityAnalyzer
 
             return EntityAnalyzer(sorted(all_labels))
         except ImportError:

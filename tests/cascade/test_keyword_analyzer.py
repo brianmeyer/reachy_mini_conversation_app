@@ -2,7 +2,7 @@
 
 import pytest
 
-from reachy_mini_conversation_app.cascade.transcript_analysis.keyword_analyzer import (
+from reachy_mini_conversation_app.cascade.transcript_analysis.keyword import (
     KeywordAnalyzer,
     _is_glob,
 )

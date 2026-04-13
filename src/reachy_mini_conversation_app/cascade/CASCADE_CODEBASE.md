@@ -77,8 +77,8 @@ cascade/
     ├── base.py                        # Data classes + TranscriptAnalyzer ABC
     ├── loader.py                      # YAML loader, callback importer
     ├── manager.py                     # Orchestrator, deduplication, dispatch
-    ├── keyword_analyzer.py            # Keyword/glob matching
-    └── entity_analyzer.py             # NER via GLiNER (optional dependency)
+    ├── keyword.py                     # Keyword/glob matching (KeywordAnalyzer)
+    └── entity.py                      # NER via GLiNER (EntityAnalyzer, optional dependency)
 ```
 
 ---
@@ -678,8 +678,8 @@ main.py
       │   │   └─> speech_output.py (SpeechOutput.speak() for TTS)
       │   └─> transcript_analysis/ (TranscriptAnalysisManager)
       │       ├─> loader.py (reads profiles/<name>/reactions.yaml)
-      │       ├─> keyword_analyzer.py
-      │       └─> entity_analyzer.py (optional, requires gliner)
+      │       ├─> keyword.py (KeywordAnalyzer)
+      │       └─> entity.py (EntityAnalyzer, optional, requires gliner)
       │
       ├─[--gradio]─> ui/gradio_app.py (CascadeGradioUI)
       │   ├─> ui/audio_playback.py (AudioPlaybackSystem)

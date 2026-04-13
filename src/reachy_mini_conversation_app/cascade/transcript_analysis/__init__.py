@@ -2,13 +2,13 @@
 
 from .base import EntityMatch, TriggerMatch, TriggerConfig, ReactionConfig, TranscriptAnalyzer
 from .loader import get_profile_reactions
+from .keyword import KeywordAnalyzer
 from .manager import NoOpTranscriptManager, TranscriptAnalysisManager
-from .keyword_analyzer import KeywordAnalyzer
 
 
 # EntityAnalyzer is optional (requires gliner extra)
 try:
-    from .entity_analyzer import EntityAnalyzer
+    from .entity import EntityAnalyzer
 
     __all__ = [
         "EntityMatch",
