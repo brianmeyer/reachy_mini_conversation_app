@@ -439,7 +439,7 @@ class LocalStream:
     def clear_audio_queue(self) -> None:
         """Flush the player's appsrc to drop any queued audio immediately."""
         logger.info("User intervention: flushing player queue")
-        if self._robot.media.backend in (MediaBackend.GSTREAMER, MediaBackend.GSTREAMER_NO_VIDEO):
+        if self._robot.media.backend == MediaBackend.LOCAL:
             self._robot.media.audio.clear_player()
         else:
             self._robot.media.audio.clear_output_buffer()

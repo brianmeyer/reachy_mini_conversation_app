@@ -5,7 +5,6 @@ import sys
 import time
 import asyncio
 import argparse
-import platform
 import threading
 from typing import Any, Dict, List, Optional
 
@@ -22,13 +21,6 @@ from reachy_mini_conversation_app.utils import (
     initialize_camera_and_vision,
     log_connection_troubleshooting,
 )
-
-
-def _select_media_backend(args: argparse.Namespace) -> str:
-    """Pick the right media backend based on platform and flags."""
-    if platform.system() == "Darwin":
-        return "sounddevice_no_video" if args.no_camera else "sounddevice_opencv"
-    return "gstreamer_no_video" if args.no_camera else "gstreamer"
 
 
 def update_chatbot(chatbot: List[Dict[str, Any]], response: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -69,13 +61,12 @@ def run(
 
     if robot is None:
         try:
-            robot_kwargs = {}
+            robot_kwargs: dict[str, Any] = {}
             if args.robot_name is not None:
                 robot_kwargs["robot_name"] = args.robot_name
 
-            media_backend = _select_media_backend(args)
-            logger.info(f"Initializing ReachyMini with media_backend={media_backend!r}")
-            robot = ReachyMini(media_backend=media_backend, **robot_kwargs)
+            logger.info("Initializing ReachyMini (SDK will auto-detect appropriate backend)")
+            robot = ReachyMini(**robot_kwargs)
 
         except TimeoutError as e:
             logger.error(
