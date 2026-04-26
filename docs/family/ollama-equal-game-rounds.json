@@ -1,0 +1,391 @@
+[
+  {
+    "round": "round-1-star-catcher",
+    "model": "glm-5.1:cloud",
+    "status": 200,
+    "seconds": 44.837,
+    "text": "I've created the star catching game with a 30-second timer, moving color-changing stars, sparkle effects, score tracking, and a restart button \u2014 all in one self-contained HTML file!",
+    "tools": [
+      "artifact"
+    ],
+    "tool_ok": [
+      true
+    ],
+    "artifact": {
+      "ok": true,
+      "path": "/Users/brianmeyer/reachy/mac_bridge/artifacts/20260424-223239-same-prompt-round-1-58e2ee3b.html",
+      "url": "http://127.0.0.1:8787/artifacts/20260424-223239-same-prompt-round-1-58e2ee3b.html",
+      "bytes": 8936
+    },
+    "bytes": 8912,
+    "checks": {
+      "has_html": true,
+      "has_title": true,
+      "has_style": true,
+      "has_script": true,
+      "has_score_or_moves": true,
+      "has_restart": true,
+      "has_input": true,
+      "has_goal_or_timer": true,
+      "no_external_http": false,
+      "not_tiny": true
+    },
+    "static_score": 9,
+    "title": "Star Catcher!"
+  },
+  {
+    "round": "round-1-star-catcher",
+    "model": "minimax-m2.7:cloud",
+    "status": 200,
+    "seconds": 52.635,
+    "text": "Star Catcher game created with moving stars, 30-second timer, sparkle effects, and restart functionality.",
+    "tools": [
+      "artifact"
+    ],
+    "tool_ok": [
+      true
+    ],
+    "artifact": {
+      "ok": true,
+      "path": "/Users/brianmeyer/reachy/mac_bridge/artifacts/20260424-223328-same-prompt-round-1-63817cfc.html",
+      "url": "http://127.0.0.1:8787/artifacts/20260424-223328-same-prompt-round-1-63817cfc.html",
+      "bytes": 5428
+    },
+    "bytes": 5386,
+    "checks": {
+      "has_html": true,
+      "has_title": true,
+      "has_style": true,
+      "has_script": true,
+      "has_score_or_moves": true,
+      "has_restart": true,
+      "has_input": true,
+      "has_goal_or_timer": true,
+      "no_external_http": true,
+      "not_tiny": true
+    },
+    "static_score": 10,
+    "title": "Star Catcher"
+  },
+  {
+    "round": "round-1-star-catcher",
+    "model": "kimi-k2.6:cloud",
+    "status": 200,
+    "seconds": 48.483,
+    "text": "I created the kid-friendly star catching game with a 30-second timer, moving star, score display, and restart button.",
+    "tools": [
+      "artifact"
+    ],
+    "tool_ok": [
+      true
+    ],
+    "artifact": {
+      "ok": true,
+      "path": "/Users/brianmeyer/reachy/mac_bridge/artifacts/20260424-223420-same-prompt-round-1-0a3acf78.html",
+      "url": "http://127.0.0.1:8787/artifacts/20260424-223420-same-prompt-round-1-0a3acf78.html",
+      "bytes": 3861
+    },
+    "bytes": 3855,
+    "checks": {
+      "has_html": true,
+      "has_title": true,
+      "has_style": true,
+      "has_script": true,
+      "has_score_or_moves": true,
+      "has_restart": true,
+      "has_input": true,
+      "has_goal_or_timer": true,
+      "no_external_http": true,
+      "not_tiny": true
+    },
+    "static_score": 10,
+    "title": "Star Catcher"
+  },
+  {
+    "round": "round-1-star-catcher",
+    "model": "qwen3.5:cloud",
+    "status": 503,
+    "seconds": 60.003,
+    "text": "",
+    "tools": [],
+    "tool_ok": [],
+    "error": {
+      "ok": false,
+      "backend": "ollama",
+      "model": "qwen3.5:cloud",
+      "error": "timed out"
+    }
+  },
+  {
+    "round": "round-1-star-catcher",
+    "model": "nemotron-3-super:cloud",
+    "status": 200,
+    "seconds": 34.26,
+    "text": "The star-catching game is ready! Enjoy catching stars and scoring points in this fun 30-second challenge.",
+    "tools": [
+      "artifact"
+    ],
+    "tool_ok": [
+      true
+    ],
+    "artifact": {
+      "ok": true,
+      "path": "/Users/brianmeyer/reachy/mac_bridge/artifacts/20260424-223553-same-prompt-round-1-25029b70.html",
+      "url": "http://127.0.0.1:8787/artifacts/20260424-223553-same-prompt-round-1-25029b70.html",
+      "bytes": 7328
+    },
+    "bytes": 7324,
+    "checks": {
+      "has_html": true,
+      "has_title": true,
+      "has_style": true,
+      "has_script": true,
+      "has_score_or_moves": true,
+      "has_restart": true,
+      "has_input": true,
+      "has_goal_or_timer": true,
+      "no_external_http": true,
+      "not_tiny": true
+    },
+    "static_score": 10,
+    "title": "Star Catch Game"
+  },
+  {
+    "round": "round-1-star-catcher",
+    "model": "deepseek-v4-flash:cloud",
+    "status": 200,
+    "seconds": 26.829,
+    "text": "Your star-catching game is ready with a visible title, score, 30\u2011second timer, moving star, restart button, and a pop animation \u2014 all in one HTML file! \u2b50",
+    "tools": [
+      "artifact"
+    ],
+    "tool_ok": [
+      true
+    ],
+    "artifact": {
+      "ok": true,
+      "path": "/Users/brianmeyer/reachy/mac_bridge/artifacts/20260424-223622-same-prompt-round-1-ed4e5cd9.html",
+      "url": "http://127.0.0.1:8787/artifacts/20260424-223622-same-prompt-round-1-ed4e5cd9.html",
+      "bytes": 7815
+    },
+    "bytes": 7766,
+    "checks": {
+      "has_html": true,
+      "has_title": true,
+      "has_style": true,
+      "has_script": true,
+      "has_score_or_moves": true,
+      "has_restart": true,
+      "has_input": true,
+      "has_goal_or_timer": true,
+      "no_external_http": true,
+      "not_tiny": true
+    },
+    "static_score": 10,
+    "title": "\u2b50 Star Catching Game \u2b50"
+  },
+  {
+    "round": "round-2-robot-maze",
+    "model": "glm-5.1:cloud",
+    "status": 200,
+    "seconds": 58.88,
+    "text": "The robot maze game is ready \u2014 guide your little robot through randomly generated mazes using arrow keys, WASD, or on-screen tap arrows, with a move counter, level progression, and restart button all built in!",
+    "tools": [
+      "artifact"
+    ],
+    "tool_ok": [
+      true
+    ],
+    "artifact": {
+      "ok": true,
+      "path": "/Users/brianmeyer/reachy/mac_bridge/artifacts/20260424-223720-same-prompt-round-2-a843b9d5.html",
+      "url": "http://127.0.0.1:8787/artifacts/20260424-223720-same-prompt-round-2-a843b9d5.html",
+      "bytes": 9662
+    },
+    "bytes": 9648,
+    "checks": {
+      "has_html": true,
+      "has_title": true,
+      "has_style": true,
+      "has_script": true,
+      "has_score_or_moves": true,
+      "has_restart": true,
+      "has_input": true,
+      "has_goal_or_timer": true,
+      "no_external_http": true,
+      "not_tiny": true
+    },
+    "static_score": 10,
+    "title": "Robot Maze"
+  },
+  {
+    "round": "round-2-robot-maze",
+    "model": "minimax-m2.7:cloud",
+    "status": 200,
+    "seconds": 64.616,
+    "text": "Your kid-friendly robot maze game has been created and is ready to play!",
+    "tools": [
+      "artifact"
+    ],
+    "tool_ok": [
+      true
+    ],
+    "artifact": {
+      "ok": true,
+      "path": "/Users/brianmeyer/reachy/mac_bridge/artifacts/20260424-223821-same-prompt-round-2-c15bbbfe.html",
+      "url": "http://127.0.0.1:8787/artifacts/20260424-223821-same-prompt-round-2-c15bbbfe.html",
+      "bytes": 9793
+    },
+    "bytes": 9751,
+    "checks": {
+      "has_html": true,
+      "has_title": true,
+      "has_style": true,
+      "has_script": true,
+      "has_score_or_moves": true,
+      "has_restart": true,
+      "has_input": true,
+      "has_goal_or_timer": true,
+      "no_external_http": true,
+      "not_tiny": true
+    },
+    "static_score": 10,
+    "title": "Robot Maze Adventure"
+  },
+  {
+    "round": "round-2-robot-maze",
+    "model": "kimi-k2.6:cloud",
+    "status": 200,
+    "seconds": 51.405,
+    "text": "Your robot maze game is ready with arrow keys, on-screen buttons, walls, a charging-station goal, move tracking, and a restart button.",
+    "tools": [
+      "artifact"
+    ],
+    "tool_ok": [
+      true
+    ],
+    "artifact": {
+      "ok": true,
+      "path": "/Users/brianmeyer/reachy/mac_bridge/artifacts/20260424-223916-same-prompt-round-2-56ceebe6.html",
+      "url": "http://127.0.0.1:8787/artifacts/20260424-223916-same-prompt-round-2-56ceebe6.html",
+      "bytes": 7967
+    },
+    "bytes": 7945,
+    "checks": {
+      "has_html": true,
+      "has_title": true,
+      "has_style": true,
+      "has_script": true,
+      "has_score_or_moves": true,
+      "has_restart": true,
+      "has_input": true,
+      "has_goal_or_timer": true,
+      "no_external_http": true,
+      "not_tiny": true
+    },
+    "static_score": 10,
+    "title": "Robot Maze Adventure"
+  },
+  {
+    "round": "round-2-robot-maze",
+    "model": "qwen3.5:cloud",
+    "status": 200,
+    "seconds": 57.622,
+    "text": "The robot maze game is ready at the artifact URL for you to open whenever you'd like to play!",
+    "tools": [
+      "artifact"
+    ],
+    "tool_ok": [
+      true
+    ],
+    "artifact": {
+      "ok": true,
+      "path": "/Users/brianmeyer/reachy/mac_bridge/artifacts/20260424-224009-same-prompt-round-2-dccd1513.html",
+      "url": "http://127.0.0.1:8787/artifacts/20260424-224009-same-prompt-round-2-dccd1513.html",
+      "bytes": 6622
+    },
+    "bytes": 6587,
+    "checks": {
+      "has_html": true,
+      "has_title": true,
+      "has_style": true,
+      "has_script": true,
+      "has_score_or_moves": true,
+      "has_restart": true,
+      "has_input": true,
+      "has_goal_or_timer": true,
+      "no_external_http": true,
+      "not_tiny": true
+    },
+    "static_score": 10,
+    "title": "Robot Maze Adventure"
+  },
+  {
+    "round": "round-2-robot-maze",
+    "model": "nemotron-3-super:cloud",
+    "status": 200,
+    "seconds": 16.923,
+    "text": "The game is ready to play!",
+    "tools": [
+      "artifact"
+    ],
+    "tool_ok": [
+      true
+    ],
+    "artifact": {
+      "ok": true,
+      "path": "/Users/brianmeyer/reachy/mac_bridge/artifacts/20260424-224031-same-prompt-round-2-9dc6ce37.html",
+      "url": "http://127.0.0.1:8787/artifacts/20260424-224031-same-prompt-round-2-9dc6ce37.html",
+      "bytes": 6976
+    },
+    "bytes": 6976,
+    "checks": {
+      "has_html": true,
+      "has_title": true,
+      "has_style": true,
+      "has_script": true,
+      "has_score_or_moves": true,
+      "has_restart": true,
+      "has_input": true,
+      "has_goal_or_timer": true,
+      "no_external_http": true,
+      "not_tiny": true
+    },
+    "static_score": 10,
+    "title": "Robot Maze Game"
+  },
+  {
+    "round": "round-2-robot-maze",
+    "model": "deepseek-v4-flash:cloud",
+    "status": 200,
+    "seconds": 36.25,
+    "text": "Your robot maze game is ready with a visible title, move counter, restart button, walls, a \u2b50 goal, and click or arrow key controls \u2014 all in one HTML file!",
+    "tools": [
+      "artifact"
+    ],
+    "tool_ok": [
+      true
+    ],
+    "artifact": {
+      "ok": true,
+      "path": "/Users/brianmeyer/reachy/mac_bridge/artifacts/20260424-224108-same-prompt-round-2-a1adcc9e.html",
+      "url": "http://127.0.0.1:8787/artifacts/20260424-224108-same-prompt-round-2-a1adcc9e.html",
+      "bytes": 8246
+    },
+    "bytes": 8213,
+    "checks": {
+      "has_html": true,
+      "has_title": true,
+      "has_style": true,
+      "has_script": true,
+      "has_score_or_moves": true,
+      "has_restart": true,
+      "has_input": true,
+      "has_goal_or_timer": true,
+      "no_external_http": true,
+      "not_tiny": true
+    },
+    "static_score": 10,
+    "title": "\ud83d\udc3e Reachy Robot Maze"
+  }
+]

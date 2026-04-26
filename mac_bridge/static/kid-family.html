@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reachy Kids Board</title>
+  <style>
+    :root {
+      --bg: #f7f3e8;
+      --ink: #172026;
+      --muted: #657078;
+      --line: #d8cfbd;
+      --panel: #fffdf7;
+      --mint: #dff7ee;
+      --blue: #dbeafe;
+      --pink: #fae8ff;
+      --gold: #fef3c7;
+      --green: #dcfce7;
+      --accent: #0f766e;
+      --shadow: 0 12px 30px rgba(23, 32, 38, .12);
+      --preston: #2563eb;
+      --greyson: #9333ea;
+      --brian: #0f766e;
+      --guest: #6b7280;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    header {
+      background: rgba(255,253,247,.95);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      backdrop-filter: blur(14px);
+    }
+
+    .bar, main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px 20px;
+    }
+
+    .bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.15;
+    }
+
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; }
+    h3 { font-size: 15px; }
+
+    .sub, .meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .actions, .filters {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button, select, a.button {
+      min-height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      padding: 0 14px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button.primary, a.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    select {
+      min-width: 160px;
+    }
+
+    main {
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .today {
+      font-size: 38px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(420px, 1.05fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel, .task, .day, .detail {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--mint);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .panel-body {
+      padding: 14px;
+    }
+
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .column {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      min-height: 230px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      padding: 10px;
+    }
+
+    .column.todo { background: var(--blue); }
+    .column.waiting { background: var(--gold); }
+    .column.done { background: var(--green); }
+
+    .task {
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      box-shadow: none;
+    }
+
+    .task-title {
+      font-weight: 900;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .weekday {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .day {
+      min-height: 104px;
+      padding: 8px;
+      display: grid;
+      align-content: start;
+      gap: 6px;
+      box-shadow: none;
+      overflow: hidden;
+    }
+
+    .day.empty {
+      opacity: .35;
+    }
+
+    .day-number {
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .event-chip, .person-chip {
+      border-radius: 999px;
+      color: white;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-weight: 900;
+      border: 0;
+      min-height: 0;
+      width: 100%;
+      justify-content: flex-start;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .person-chip {
+      width: auto;
+      min-height: 32px;
+    }
+
+    .preston { background: var(--preston); }
+    .greyson { background: var(--greyson); }
+    .brian { background: var(--brian); }
+    .unknown_guest, .danielle, .family { background: var(--guest); }
+
+    .detail {
+      padding: 14px;
+      display: grid;
+      gap: 8px;
+      box-shadow: none;
+      background: #fffaf0;
+    }
+
+    .empty-state {
+      color: var(--muted);
+      padding: 16px;
+      text-align: center;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.45);
+    }
+
+    @media (max-width: 980px) {
+      .hero, .layout {
+        grid-template-columns: 1fr;
+      }
+      .kanban {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .bar, main { padding: 12px; }
+      .bar { align-items: flex-start; flex-direction: column; }
+      .actions, .filters, button, select, a.button { width: 100%; }
+      .calendar { gap: 5px; }
+      .day { min-height: 88px; padding: 6px; }
+      .event-chip { font-size: 11px; padding: 4px 6px; }
+      .today { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <div>
+        <h1>Reachy Kids Board</h1>
+        <div class="sub" id="updated">Loading today...</div>
+      </div>
+      <div class="actions">
+        <button id="refresh">Refresh</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="today" id="todayTitle">Today</div>
+        <div class="sub">Tap a chore when it is done. Tap a calendar item to see what is happening.</div>
+      </div>
+      <div class="filters">
+        <select id="profileFilter" aria-label="Choose person"></select>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Chores</h2>
+          <span class="meta" id="choreCount">0 chores</span>
+        </div>
+        <div class="panel-body kanban">
+          <div class="column todo">
+            <h3>To Do</h3>
+            <div id="todo"></div>
+          </div>
+          <div class="column waiting">
+            <h3>Needs Parent</h3>
+            <div id="waiting"></div>
+          </div>
+          <div class="column done">
+            <h3>Done</h3>
+            <div id="done"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 id="monthTitle">Calendar</h2>
+          <div class="actions">
+            <button id="prevMonth">Back</button>
+            <button id="todayMonth">Today</button>
+            <button id="nextMonth">Next</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="calendar" id="calendar"></div>
+          <div class="detail" id="eventDetail">
+            <strong>Pick a calendar item</strong>
+            <span class="meta">Details will show here.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = { board: { events: [], chores: [] }, profiles: [], selectedProfile: 'all', visibleMonth: new Date() };
+    const els = {
+      updated: document.getElementById('updated'),
+      refresh: document.getElementById('refresh'),
+      prevMonth: document.getElementById('prevMonth'),
+      todayMonth: document.getElementById('todayMonth'),
+      nextMonth: document.getElementById('nextMonth'),
+      todayTitle: document.getElementById('todayTitle'),
+      profileFilter: document.getElementById('profileFilter'),
+      choreCount: document.getElementById('choreCount'),
+      todo: document.getElementById('todo'),
+      waiting: document.getElementById('waiting'),
+      done: document.getElementById('done'),
+      calendar: document.getElementById('calendar'),
+      monthTitle: document.getElementById('monthTitle'),
+      eventDetail: document.getElementById('eventDetail')
+    };
+
+    const colorClass = id => ['preston', 'greyson', 'brian', 'danielle', 'unknown_guest'].includes(id) ? id : 'family';
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[char]);
+    }
+
+    function profileName(id) {
+      const profile = state.profiles.find(item => item.id === id);
+      return profile ? profile.display_name : id;
+    }
+
+    function eventPerson(item) {
+      return (item.profiles && item.profiles[0]) || 'family';
+    }
+
+    async function load() {
+      const res = await fetch('/family/board', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Kids board failed: ${res.status}`);
+      const data = await res.json();
+      state.board = data.board || { events: [], chores: [] };
+      state.profiles = data.profiles || [];
+      render();
+    }
+
+    function render() {
+      const now = new Date();
+      els.updated.textContent = `Updated ${now.toLocaleTimeString()}`;
+      els.todayTitle.textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+      els.monthTitle.textContent = now.toLocaleDateString([], { month: 'long', year: 'numeric' });
+      els.profileFilter.innerHTML = '<option value="all">Everyone</option>' + state.profiles
+        .filter(profile => ['child', 'parent', 'adult', 'guest'].includes(profile.role))
+        .map(profile => `<option value="${escapeHtml(profile.id)}">${escapeHtml(profile.display_name)}</option>`)
+        .join('');
+      els.profileFilter.value = state.selectedProfile;
+      renderChores();
+      renderCalendar(state.visibleMonth);
+    }
+
+    function visibleForProfile(itemProfileList, fallbackProfile) {
+      if (state.selectedProfile === 'all') return true;
+      if (fallbackProfile && fallbackProfile === state.selectedProfile) return true;
+      return (itemProfileList || []).includes(state.selectedProfile);
+    }
+
+    function latestCompletion(chore) {
+      const completions = chore.completions || [];
+      return completions[completions.length - 1] || null;
+    }
+
+    function renderChores() {
+      const chores = (state.board.chores || [])
+        .filter(chore => chore.status !== 'deleted')
+        .filter(chore => visibleForProfile([], chore.assigned_to));
+      const groups = { todo: [], waiting: [], done: [] };
+      for (const chore of chores) {
+        const latest = latestCompletion(chore);
+        if (!latest) groups.todo.push(chore);
+        else if (latest.status === 'needs_parent') groups.waiting.push(chore);
+        else groups.done.push(chore);
+      }
+      els.choreCount.textContent = `${chores.length} chore${chores.length === 1 ? '' : 's'}`;
+      els.todo.innerHTML = groups.todo.length ? groups.todo.map(renderTask).join('') : empty('Nothing here right now.');
+      els.waiting.innerHTML = groups.waiting.length ? groups.waiting.map(renderTask).join('') : empty('Waiting for a parent check.');
+      els.done.innerHTML = groups.done.length ? groups.done.map(renderTask).join('') : empty('Done chores will show here.');
+    }
+
+    function renderTask(chore) {
+      const latest = latestCompletion(chore);
+      const status = latest ? latest.status : 'ready';
+      return `
+        <article class="task">
+          <div>
+            <span class="person-chip ${colorClass(chore.assigned_to)}">${escapeHtml(profileName(chore.assigned_to))}</span>
+          </div>
+          <div class="task-title">${escapeHtml(chore.title)}</div>
+          <div class="meta">${escapeHtml(chore.cadence)}${chore.reward ? ` · ${escapeHtml(chore.reward)}` : ''}</div>
+          ${status === 'ready' ? `<button class="primary" data-done="${escapeHtml(chore.id)}">I Did It</button>` : `<div class="meta">${escapeHtml(status)}</div>`}
+        </article>
+      `;
+    }
+
+    function renderCalendar(now) {
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const first = new Date(year, month, 1);
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const startOffset = first.getDay();
+      const events = (state.board.events || [])
+        .filter(item => item.status !== 'deleted')
+        .filter(item => visibleForProfile(item.profiles, null));
+      const weekdayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const cells = weekdayLabels.map(day => `<div class="weekday">${day}</div>`);
+      for (let i = 0; i < startOffset; i += 1) cells.push('<div class="day empty"></div>');
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayEvents = events.filter(item => item.date === iso);
+        cells.push(`
+          <div class="day">
+            <div class="day-number">${day}</div>
+            ${dayEvents.slice(0, 3).map(item => `
+              <button class="event-chip ${colorClass(eventPerson(item))}" data-event="${escapeHtml(item.id)}">${escapeHtml(item.title)}</button>
+            `).join('')}
+          </div>
+        `);
+      }
+      els.calendar.innerHTML = cells.join('');
+    }
+
+    function empty(text) {
+      return `<div class="empty-state">${escapeHtml(text)}</div>`;
+    }
+
+    function showEvent(id) {
+      const item = (state.board.events || []).find(event => event.id === id);
+      if (!item) return;
+      const profiles = (item.profiles || []).map(profileName).join(', ') || 'Everyone';
+      els.eventDetail.innerHTML = `
+        <strong>${escapeHtml(item.title)}</strong>
+        <span class="meta">${escapeHtml(item.date)} · ${escapeHtml(item.category)} · ${escapeHtml(profiles)}</span>
+        ${item.notes ? `<span>${escapeHtml(item.notes)}</span>` : ''}
+      `;
+    }
+
+    async function completeChore(id) {
+      const res = await fetch(`/family/chores/${encodeURIComponent(id)}/complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actor: 'kid', approved_by_parent: false, note: 'Marked done from kid board.' })
+      });
+      if (!res.ok) throw new Error(`Could not mark chore done: ${res.status}`);
+      await load();
+    }
+
+    function showError(error) {
+      els.updated.textContent = error.message;
+    }
+
+    els.refresh.addEventListener('click', () => load().catch(showError));
+    els.prevMonth.addEventListener('click', () => {
+      state.visibleMonth = new Date(state.visibleMonth.getFullYear(), state.visibleMonth.getMonth() - 1, 1);
+      render();
+    });
+    els.todayMonth.addEventListener('click', () => {
+      state.visibleMonth = new Date();
+      render();
+    });
+    els.nextMonth.addEventListener('click', () => {
+      state.visibleMonth = new Date(state.visibleMonth.getFullYear(), state.visibleMonth.getMonth() + 1, 1);
+      render();
+    });
+    els.profileFilter.addEventListener('change', () => {
+      state.selectedProfile = els.profileFilter.value;
+      render();
+    });
+    document.addEventListener('click', event => {
+      const done = event.target.closest('button[data-done]');
+      if (done) completeChore(done.dataset.done).catch(showError);
+      const eventButton = event.target.closest('button[data-event]');
+      if (eventButton) showEvent(eventButton.dataset.event);
+    });
+
+    load().catch(showError);
+  </script>
+</body>
+</html>

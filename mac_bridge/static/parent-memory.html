@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reachy Memory Review</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' font-family='Arial' font-weight='700' fill='white'%3ER%3C/text%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --ink: #1f2528;
+      --muted: #626b70;
+      --line: #d8d1c4;
+      --panel: #fffdf8;
+      --soft: #edf6f4;
+      --accent: #0f766e;
+      --danger: #b91c1c;
+      --ok: #166534;
+      --warn: #b45309;
+      --shadow: 0 10px 28px rgba(31, 37, 40, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    header {
+      background: rgba(255,253,248,.94);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      backdrop-filter: blur(14px);
+    }
+
+    .bar, main {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 16px 20px;
+    }
+
+    .bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h1, h2 {
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    h1 { font-size: 18px; }
+    h2 { font-size: 16px; }
+
+    .sub, .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .sub { margin-top: 3px; }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button, select, textarea, a.button {
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      font: inherit;
+    }
+
+    button, a.button {
+      min-height: 40px;
+      padding: 0 12px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    button.primary, a.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    button.danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
+    select {
+      min-height: 40px;
+      padding: 0 10px;
+    }
+
+    textarea {
+      min-height: 86px;
+      padding: 10px;
+      resize: vertical;
+      width: 100%;
+      line-height: 1.45;
+    }
+
+    main {
+      display: grid;
+      gap: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric, .panel, .proposal {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      padding: 14px;
+      min-height: 92px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .value {
+      margin-top: 10px;
+      font-size: 24px;
+      font-weight: 850;
+      overflow-wrap: anywhere;
+    }
+
+    .panel {
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--soft);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .composer {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .proposal-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .proposal {
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .proposal-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .memory-text {
+      font-size: 15px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .review-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .note {
+      min-height: 40px;
+      height: 40px;
+    }
+
+    .memory-edit {
+      min-height: 72px;
+    }
+
+    .pill {
+      display: inline-flex;
+      width: max-content;
+      max-width: 100%;
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: #e5e7eb;
+      color: #374151;
+      font-size: 12px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .pill.pending { background: #ffedd5; color: var(--warn); }
+    .pill.approved { background: #dcfce7; color: var(--ok); }
+    .pill.rejected { background: #fee2e2; color: var(--danger); }
+    .pill.deleted { background: #e5e7eb; color: #4b5563; }
+    .pill.child { background: #fae8ff; color: #86198f; }
+    .pill.parent { background: #dbeafe; color: #1d4ed8; }
+
+    .empty {
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 860px) {
+      .bar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .composer, .review-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .bar, main {
+        padding: 12px;
+      }
+      .stats {
+        grid-template-columns: 1fr;
+      }
+      button, select, a.button {
+        width: 100%;
+      }
+      .actions {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <div>
+        <h1>Reachy Memory Review</h1>
+        <div class="sub" id="updated">Loading memory proposals...</div>
+      </div>
+      <div class="actions">
+        <a class="button" href="/parent">Parent Panel</a>
+        <a class="button" href="/logs">Logs</a>
+        <select id="filter" aria-label="Filter proposals">
+          <option value="pending">Pending</option>
+          <option value="">All</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="deleted">Deleted</option>
+        </select>
+        <button class="primary" id="generate">Generate From Logs</button>
+        <button id="refresh">Refresh</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="stats">
+      <div class="metric">
+        <div class="label">Pending</div>
+        <div class="value" id="pending">0</div>
+      </div>
+      <div class="metric">
+        <div class="label">Approved</div>
+        <div class="value" id="approved">0</div>
+      </div>
+      <div class="metric">
+        <div class="label">Rejected</div>
+        <div class="value" id="rejected">0</div>
+      </div>
+      <div class="metric">
+        <div class="label">Profiles</div>
+        <div class="value" id="profiles">0</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Add A Memory Proposal</h2>
+        <span class="pill">Parent reviewed</span>
+      </div>
+      <div class="panel-body">
+        <div class="composer">
+          <select id="profile" aria-label="Profile"></select>
+          <textarea id="memoryText" maxlength="500" placeholder="Example: Preston likes Minecraft build challenges and prefers hints before answers."></textarea>
+          <button class="primary" id="add">Add</button>
+        </div>
+        <div class="hint">Approving writes to the Jetson profile Markdown file. Rejected memories stay in the audit trail but are not used by Reachy.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Review Queue</h2>
+        <span class="pill" id="shown">0 shown</span>
+      </div>
+      <div class="panel-body">
+        <div class="proposal-list" id="proposals"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = { proposals: [], profiles: [], busy: false };
+    const els = {
+      updated: document.getElementById('updated'),
+      pending: document.getElementById('pending'),
+      approved: document.getElementById('approved'),
+      rejected: document.getElementById('rejected'),
+      profiles: document.getElementById('profiles'),
+      profile: document.getElementById('profile'),
+      memoryText: document.getElementById('memoryText'),
+      add: document.getElementById('add'),
+      generate: document.getElementById('generate'),
+      refresh: document.getElementById('refresh'),
+      filter: document.getElementById('filter'),
+      proposals: document.getElementById('proposals'),
+      shown: document.getElementById('shown')
+    };
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char]);
+    }
+
+    function when(ts) {
+      const d = new Date(ts);
+      if (Number.isNaN(d.getTime())) return ts || '';
+      return d.toLocaleString();
+    }
+
+    function setBusy(next) {
+      state.busy = next;
+      for (const el of [els.add, els.generate, els.refresh]) el.disabled = next;
+    }
+
+    async function load() {
+      const status = els.filter.value;
+      const url = status ? `/memory/proposals?status=${encodeURIComponent(status)}&limit=200` : '/memory/proposals?limit=200';
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Memory load failed: ${res.status}`);
+      const data = await res.json();
+      state.proposals = data.proposals || [];
+      state.profiles = data.profiles || [];
+      render(data.stats || {});
+    }
+
+    function render(stats) {
+      const counts = stats.by_status || {};
+      els.pending.textContent = counts.pending || 0;
+      els.approved.textContent = counts.approved || 0;
+      els.rejected.textContent = counts.rejected || 0;
+      els.profiles.textContent = state.profiles.length;
+      els.shown.textContent = `${state.proposals.length} shown`;
+      els.updated.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+      els.profile.innerHTML = state.profiles.map(profile => (
+        `<option value="${escapeHtml(profile.id)}">${escapeHtml(profile.display_name)}</option>`
+      )).join('');
+
+      if (!state.proposals.length) {
+        els.proposals.innerHTML = '<div class="empty">No memory proposals in this view.</div>';
+        return;
+      }
+
+      els.proposals.innerHTML = state.proposals.map(item => `
+        <article class="proposal">
+          <div class="proposal-top">
+            <div>
+              <span class="pill ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span>
+              <span class="pill ${escapeHtml(profileRole(item.profile))}">${escapeHtml(item.display_name || item.profile)}</span>
+            </div>
+            <div class="meta">${escapeHtml(when(item.created_at))}</div>
+          </div>
+          <div class="memory-text">${escapeHtml(item.proposed_memory)}</div>
+          <div class="meta">${escapeHtml(item.reason || item.source || '')}${sourceSuffix(item)}</div>
+          ${item.status === 'pending' ? reviewControls(item) : reviewedMeta(item)}
+        </article>
+      `).join('');
+    }
+
+    function profileRole(profileId) {
+      const profile = state.profiles.find(item => item.id === profileId);
+      return profile ? profile.role : '';
+    }
+
+    function sourceSuffix(item) {
+      const ids = item.source_event_ids || [];
+      return ids.length ? ` · event ${escapeHtml(ids.join(', '))}` : '';
+    }
+
+    function reviewControls(item) {
+      return `
+        <textarea class="memory-edit" id="memory-${escapeHtml(item.id)}" maxlength="500" aria-label="Editable memory">${escapeHtml(item.proposed_memory)}</textarea>
+        <div class="review-row">
+          <textarea class="note" id="note-${escapeHtml(item.id)}" maxlength="500" placeholder="Optional parent note"></textarea>
+          <button class="primary" data-action="approve" data-id="${escapeHtml(item.id)}">Approve</button>
+          <button class="danger" data-action="reject" data-id="${escapeHtml(item.id)}">Reject</button>
+          <button data-action="delete" data-id="${escapeHtml(item.id)}">Delete</button>
+        </div>
+      `;
+    }
+
+    function reviewedMeta(item) {
+      const write = item.write_result && item.write_result.path ? ` · wrote ${item.write_result.path}` : '';
+      return `<div class="meta">Reviewed ${escapeHtml(when(item.reviewed_at))}${escapeHtml(write)}${item.review_note ? ` · ${escapeHtml(item.review_note)}` : ''}</div>`;
+    }
+
+    async function createProposal() {
+      const text = els.memoryText.value.trim();
+      if (!text) return;
+      setBusy(true);
+      try {
+        const res = await fetch('/memory/proposals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile: els.profile.value, proposed_memory: text, reason: 'Manual parent proposal' })
+        });
+        if (!res.ok) throw new Error(await errorText(res));
+        els.memoryText.value = '';
+        await load();
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function generate() {
+      setBusy(true);
+      try {
+        const res = await fetch('/memory/proposals/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ limit: 200 })
+        });
+        if (!res.ok) throw new Error(await errorText(res));
+        await load();
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function review(id, action) {
+      const note = document.getElementById(`note-${id}`);
+      const memory = document.getElementById(`memory-${id}`);
+      setBusy(true);
+      try {
+        const res = await fetch(`/memory/proposals/${encodeURIComponent(id)}/${action}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            note: note ? note.value : '',
+            proposed_memory: action === 'approve' && memory ? memory.value : undefined
+          })
+        });
+        if (!res.ok) throw new Error(await errorText(res));
+        await load();
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function errorText(res) {
+      try {
+        const data = await res.json();
+        return data.detail && (data.detail.error || data.detail.message) || `Request failed: ${res.status}`;
+      } catch {
+        return `Request failed: ${res.status}`;
+      }
+    }
+
+    els.add.addEventListener('click', () => createProposal().catch(showError));
+    els.generate.addEventListener('click', () => generate().catch(showError));
+    els.refresh.addEventListener('click', () => load().catch(showError));
+    els.filter.addEventListener('change', () => load().catch(showError));
+    els.proposals.addEventListener('click', event => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      review(button.dataset.id, button.dataset.action).catch(showError);
+    });
+
+    function showError(error) {
+      els.updated.textContent = error.message;
+    }
+
+    load().catch(showError);
+    setInterval(() => load().catch(() => {}), 30000);
+  </script>
+</body>
+</html>

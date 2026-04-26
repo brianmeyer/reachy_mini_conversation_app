@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reachy Family Board</title>
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --ink: #1f2528;
+      --muted: #626b70;
+      --line: #d8d1c4;
+      --panel: #fffdf8;
+      --soft: #edf6f4;
+      --accent: #0f766e;
+      --danger: #b91c1c;
+      --ok: #166534;
+      --warn: #b45309;
+      --shadow: 0 10px 28px rgba(31, 37, 40, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    header {
+      background: rgba(255,253,248,.94);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      backdrop-filter: blur(14px);
+    }
+
+    .bar, main {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 16px 20px;
+    }
+
+    .bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h1, h2 {
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    h1 { font-size: 18px; }
+    h2 { font-size: 16px; }
+
+    .sub, .hint, .meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .sub { margin-top: 3px; }
+    .meta { font-size: 12px; }
+
+    .actions, .row-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button, input, select, textarea, a.button {
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      font: inherit;
+    }
+
+    button, a.button {
+      min-height: 40px;
+      padding: 0 12px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    button.primary, a.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    button.danger {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+
+    input, select, textarea {
+      min-height: 40px;
+      padding: 8px 10px;
+      width: 100%;
+    }
+
+    textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+
+    main {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel, .item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .panel {
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--soft);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    .item-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item {
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      box-shadow: none;
+    }
+
+    .item-title {
+      font-weight: 850;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .pill {
+      display: inline-flex;
+      width: max-content;
+      max-width: 100%;
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: #e5e7eb;
+      color: #374151;
+      font-size: 12px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .pill.parent { background: #dbeafe; color: #1d4ed8; }
+    .pill.kid { background: #fae8ff; color: #86198f; }
+    .pill.ok { background: #dcfce7; color: var(--ok); }
+    .pill.warn { background: #ffedd5; color: var(--warn); }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+    }
+
+    @media (max-width: 860px) {
+      .bar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .grid, .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .actions, .row-actions {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .bar, main { padding: 12px; }
+      button, a.button { width: 100%; }
+      .actions { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <div>
+        <h1>Reachy Family Board</h1>
+        <div class="sub" id="updated">Loading family board...</div>
+      </div>
+      <div class="actions">
+        <a class="button" href="/parent">Parent Panel</a>
+        <a class="button" href="/memory">Memory</a>
+        <a class="button primary" href="/kids">Kid View</a>
+        <button id="refresh">Refresh</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Add Schedule Item</h2>
+          <span class="pill parent">Parent owned</span>
+        </div>
+        <div class="panel-body">
+          <div class="form-grid">
+            <input id="eventTitle" placeholder="Birthday, custody day, school event">
+            <input id="eventDate" type="date">
+            <select id="eventCategory">
+              <option value="family">Family</option>
+              <option value="custody">Custody</option>
+              <option value="birthday">Birthday</option>
+              <option value="school">School</option>
+              <option value="activity">Activity</option>
+            </select>
+            <select id="eventProfile"></select>
+            <textarea class="wide" id="eventNotes" placeholder="Optional note"></textarea>
+          </div>
+          <button class="primary" id="addEvent">Add Schedule Item</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Add Chore</h2>
+          <span class="pill kid">Kid friendly</span>
+        </div>
+        <div class="panel-body">
+          <div class="form-grid">
+            <input id="choreTitle" placeholder="Feed pets, clean room, reading time">
+            <select id="choreProfile"></select>
+            <select id="choreCadence">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="school-night">School night</option>
+              <option value="custom">Custom</option>
+            </select>
+            <input id="choreReward" placeholder="Reward or celebration">
+            <textarea class="wide" id="choreNotes" placeholder="Optional note"></textarea>
+          </div>
+          <button class="primary" id="addChore">Add Chore</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Schedule</h2>
+          <span class="pill" id="eventCount">0 items</span>
+        </div>
+        <div class="panel-body">
+          <div class="item-list" id="events"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Chores</h2>
+          <span class="pill" id="choreCount">0 items</span>
+        </div>
+        <div class="panel-body">
+          <div class="item-list" id="chores"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = { board: { events: [], chores: [] }, profiles: [] };
+    const els = {
+      updated: document.getElementById('updated'),
+      refresh: document.getElementById('refresh'),
+      eventTitle: document.getElementById('eventTitle'),
+      eventDate: document.getElementById('eventDate'),
+      eventCategory: document.getElementById('eventCategory'),
+      eventProfile: document.getElementById('eventProfile'),
+      eventNotes: document.getElementById('eventNotes'),
+      addEvent: document.getElementById('addEvent'),
+      choreTitle: document.getElementById('choreTitle'),
+      choreProfile: document.getElementById('choreProfile'),
+      choreCadence: document.getElementById('choreCadence'),
+      choreReward: document.getElementById('choreReward'),
+      choreNotes: document.getElementById('choreNotes'),
+      addChore: document.getElementById('addChore'),
+      events: document.getElementById('events'),
+      chores: document.getElementById('chores'),
+      eventCount: document.getElementById('eventCount'),
+      choreCount: document.getElementById('choreCount')
+    };
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[char]);
+    }
+
+    function profileName(id) {
+      const profile = state.profiles.find(item => item.id === id);
+      return profile ? profile.display_name : id;
+    }
+
+    async function load() {
+      const res = await fetch('/family/board', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Family board failed: ${res.status}`);
+      const data = await res.json();
+      state.board = data.board || { events: [], chores: [] };
+      state.profiles = data.profiles || [];
+      render();
+    }
+
+    function render() {
+      els.updated.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+      const profileOptions = state.profiles
+        .filter(profile => profile.status !== 'inactive')
+        .map(profile => `<option value="${escapeHtml(profile.id)}">${escapeHtml(profile.display_name)}</option>`)
+        .join('');
+      els.eventProfile.innerHTML = `<option value="">Everyone</option>${profileOptions}`;
+      els.choreProfile.innerHTML = profileOptions;
+
+      const events = (state.board.events || []).filter(item => item.status !== 'deleted');
+      const chores = (state.board.chores || []).filter(item => item.status !== 'deleted');
+      els.eventCount.textContent = `${events.length} item${events.length === 1 ? '' : 's'}`;
+      els.choreCount.textContent = `${chores.length} item${chores.length === 1 ? '' : 's'}`;
+      els.events.innerHTML = events.length ? events.map(renderEvent).join('') : '<div class="empty">No schedule items yet.</div>';
+      els.chores.innerHTML = chores.length ? chores.map(renderChore).join('') : '<div class="empty">No chores yet.</div>';
+    }
+
+    function renderEvent(item) {
+      const profiles = (item.profiles || []).map(profileName).join(', ') || 'Everyone';
+      return `
+        <article class="item">
+          <div class="item-title">${escapeHtml(item.title)}</div>
+          <div class="meta">${escapeHtml(item.date)} · ${escapeHtml(item.category)} · ${escapeHtml(profiles)}</div>
+          ${item.notes ? `<div class="hint">${escapeHtml(item.notes)}</div>` : ''}
+          <div class="row-actions"><button data-event-delete="${escapeHtml(item.id)}">Delete</button></div>
+        </article>
+      `;
+    }
+
+    function renderChore(item) {
+      const completions = item.completions || [];
+      const latest = completions[completions.length - 1];
+      const latestText = latest ? `${latest.status} at ${new Date(latest.timestamp).toLocaleString()}` : 'not done yet';
+      return `
+        <article class="item">
+          <div class="item-title">${escapeHtml(item.title)}</div>
+          <div class="meta">${escapeHtml(profileName(item.assigned_to))} · ${escapeHtml(item.cadence)} · ${escapeHtml(latestText)}</div>
+          ${item.reward ? `<div class="hint">Reward: ${escapeHtml(item.reward)}</div>` : ''}
+          <div class="row-actions"><button class="primary" data-chore-complete="${escapeHtml(item.id)}">Mark Done</button></div>
+        </article>
+      `;
+    }
+
+    async function addEvent() {
+      const payload = {
+        title: els.eventTitle.value,
+        date: els.eventDate.value || new Date().toISOString().slice(0, 10),
+        category: els.eventCategory.value,
+        profiles: els.eventProfile.value ? [els.eventProfile.value] : [],
+        notes: els.eventNotes.value
+      };
+      const res = await fetch('/family/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(await errorText(res));
+      els.eventTitle.value = '';
+      els.eventNotes.value = '';
+      await load();
+    }
+
+    async function addChore() {
+      const payload = {
+        title: els.choreTitle.value,
+        assigned_to: els.choreProfile.value,
+        cadence: els.choreCadence.value,
+        reward: els.choreReward.value,
+        notes: els.choreNotes.value,
+        parent_approval_required: true
+      };
+      const res = await fetch('/family/chores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(await errorText(res));
+      els.choreTitle.value = '';
+      els.choreReward.value = '';
+      els.choreNotes.value = '';
+      await load();
+    }
+
+    async function deleteEvent(id) {
+      const res = await fetch(`/family/events/${encodeURIComponent(id)}/delete`, { method: 'POST' });
+      if (!res.ok) throw new Error(await errorText(res));
+      await load();
+    }
+
+    async function completeChore(id) {
+      const res = await fetch(`/family/chores/${encodeURIComponent(id)}/complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actor: 'parent', approved_by_parent: true })
+      });
+      if (!res.ok) throw new Error(await errorText(res));
+      await load();
+    }
+
+    async function errorText(res) {
+      try {
+        const data = await res.json();
+        return data.detail && (data.detail.error || data.detail.message) || `Request failed: ${res.status}`;
+      } catch {
+        return `Request failed: ${res.status}`;
+      }
+    }
+
+    function showError(error) {
+      els.updated.textContent = error.message;
+    }
+
+    els.refresh.addEventListener('click', () => load().catch(showError));
+    els.addEvent.addEventListener('click', () => addEvent().catch(showError));
+    els.addChore.addEventListener('click', () => addChore().catch(showError));
+    document.addEventListener('click', event => {
+      const deleteButton = event.target.closest('button[data-event-delete]');
+      if (deleteButton) deleteEvent(deleteButton.dataset.eventDelete).catch(showError);
+      const completeButton = event.target.closest('button[data-chore-complete]');
+      if (completeButton) completeChore(completeButton.dataset.choreComplete).catch(showError);
+    });
+
+    load().catch(showError);
+  </script>
+</body>
+</html>

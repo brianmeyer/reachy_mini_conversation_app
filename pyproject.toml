@@ -128,9 +128,17 @@ ignore = [
 length-sort = true
 lines-after-imports = 2
 no-lines-before = ["standard-library", "local-folder"]
-known-local-folder = ["reachy_mini_conversation_app"]
+known-local-folder = ["reachy_family", "reachy_mini_conversation_app", "reachy_runtime"]
 known-first-party = ["reachy_mini", "reachy_mini_dances_library", "reachy_mini_toolbox"]
 split-on-trailing-comma = true
+
+[tool.ruff.lint.per-file-ignores]
+"external_content/external_tools/*.py" = ["D101", "D102"]
+"mac_bridge/**/*.py" = ["D101", "D103", "I001"]
+"scripts/*.py" = ["D103", "E402"]
+"src/reachy_family/**/*.py" = ["D102", "D107"]
+"src/reachy_runtime/**/*.py" = ["D101", "D102", "D103", "D104", "D107"]
+"tests/**/*.py" = ["D103"]
 
 [tool.ruff.format]
 quote-style = "double"

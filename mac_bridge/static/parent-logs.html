@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reachy Logs</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' font-family='Arial' font-weight='700' fill='white'%3ER%3C/text%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --ink: #1f2528;
+      --muted: #626b70;
+      --line: #d8d1c4;
+      --panel: #fffdf8;
+      --soft: #edf6f4;
+      --accent: #0f766e;
+      --danger: #b91c1c;
+      --shadow: 0 10px 28px rgba(31, 37, 40, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    header {
+      background: rgba(255,253,248,.94);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      backdrop-filter: blur(14px);
+    }
+
+    .bar, main {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 16px 20px;
+    }
+
+    .bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .sub {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button, select, a.button {
+      min-height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      padding: 0 12px;
+      font: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    button.primary, a.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    main {
+      display: grid;
+      gap: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric, .log {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      padding: 14px;
+      min-height: 92px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .value {
+      margin-top: 10px;
+      font-size: 24px;
+      font-weight: 850;
+      overflow-wrap: anywhere;
+    }
+
+    .log {
+      overflow: hidden;
+    }
+
+    .log-head {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr) 130px 190px;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--soft);
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr) 130px 190px;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #eee6d9;
+      align-items: start;
+    }
+
+    .row:last-child { border-bottom: 0; }
+
+    .summary {
+      font-weight: 750;
+      line-height: 1.3;
+    }
+
+    .details {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .pill {
+      display: inline-flex;
+      width: max-content;
+      max-width: 100%;
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: #e5e7eb;
+      color: #374151;
+      font-size: 12px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .pill.screen_open, .pill.youtube_search { background: #dbeafe; color: #1d4ed8; }
+    .pill.image, .pill.shown_image { background: #fae8ff; color: #86198f; }
+    .pill.task, .pill.reason, .pill.tool { background: #dcfce7; color: #166534; }
+    .pill.resource_decision, .pill.latency_sample { background: #fef3c7; color: #92400e; }
+    .pill.cloud_blocked, .pill.screen_blocked, .pill.tool_error, .pill.image_error { background: #fee2e2; color: #b91c1c; }
+
+    .empty {
+      padding: 30px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 860px) {
+      .bar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .log-head {
+        display: none;
+      }
+      .row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .bar, main {
+        padding: 12px;
+      }
+      .stats {
+        grid-template-columns: 1fr;
+      }
+      button, select, a.button {
+        width: 100%;
+        justify-content: center;
+      }
+      .actions {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <div>
+        <h1>Reachy Activity Log</h1>
+        <div class="sub" id="updated">Loading events...</div>
+      </div>
+      <div class="actions">
+        <a class="button" href="/parent">Parent Panel</a>
+        <select id="filter" aria-label="Filter events">
+          <option value="">All events</option>
+          <option value="screen_open">Screen opens</option>
+          <option value="youtube_search">YouTube</option>
+          <option value="image">Generated images</option>
+          <option value="shown_image">Shown images</option>
+          <option value="task">Tasks</option>
+          <option value="reason">Reasoning</option>
+          <option value="resource_decision">Resource decisions</option>
+          <option value="latency_sample">Latency samples</option>
+          <option value="cloud_toggle">Cloud toggles</option>
+          <option value="cloud_blocked">Blocked cloud</option>
+        </select>
+        <button class="primary" id="refresh">Refresh</button>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="stats">
+      <div class="metric">
+        <div class="label">Total Events</div>
+        <div class="value" id="total">0</div>
+      </div>
+      <div class="metric">
+        <div class="label">Screen Opens</div>
+        <div class="value" id="screenCount">0</div>
+      </div>
+      <div class="metric">
+        <div class="label">Images</div>
+        <div class="value" id="imageCount">0</div>
+      </div>
+      <div class="metric">
+        <div class="label">Cloud Blocks</div>
+        <div class="value" id="blockCount">0</div>
+      </div>
+    </section>
+
+    <section class="log">
+      <div class="log-head">
+        <div>Time</div>
+        <div>Activity</div>
+        <div>Type</div>
+        <div>Actor / Profile</div>
+      </div>
+      <div id="events"></div>
+    </section>
+  </main>
+
+  <script>
+    const els = {
+      updated: document.getElementById('updated'),
+      total: document.getElementById('total'),
+      screenCount: document.getElementById('screenCount'),
+      imageCount: document.getElementById('imageCount'),
+      blockCount: document.getElementById('blockCount'),
+      events: document.getElementById('events'),
+      refresh: document.getElementById('refresh'),
+      filter: document.getElementById('filter')
+    };
+
+    function brief(details) {
+      if (!details || typeof details !== 'object') return '';
+      if (details.decision && typeof details.decision === 'object') {
+        const decision = details.decision;
+        const parts = [
+          `mode: ${decision.requested_mode}`,
+          `severity: ${decision.severity}`,
+          `gemma: ${decision.allow_local_gemma ? 'allowed' : 'blocked'}`,
+          `gpu_stt: ${decision.allow_gpu_stt ? 'allowed' : 'blocked'}`,
+        ];
+        if (decision.warnings && decision.warnings[0]) parts.push(`warning: ${decision.warnings[0]}`);
+        if (decision.actions && decision.actions[0]) parts.push(`action: ${decision.actions[0]}`);
+        return parts.join(' · ');
+      }
+      const picked = [];
+      for (const key of ['prompt', 'url', 'model', 'tool', 'tool_names', 'caption', 'source']) {
+        if (details[key] !== undefined && details[key] !== null) {
+          picked.push(`${key}: ${Array.isArray(details[key]) ? details[key].join(', ') : details[key]}`);
+        }
+      }
+      if (details.image && details.image.url) picked.push(`image: ${details.image.url}`);
+      if (details.artifact && details.artifact.url) picked.push(`artifact: ${details.artifact.url}`);
+      return picked.join(' · ');
+    }
+
+    function when(ts) {
+      const d = new Date(ts);
+      if (Number.isNaN(d.getTime())) return ts || '';
+      return d.toLocaleString();
+    }
+
+    async function load() {
+      const type = els.filter.value;
+      const url = type ? `/events?limit=200&event_type=${encodeURIComponent(type)}` : '/events?limit=200';
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Events failed: ${res.status}`);
+      const data = await res.json();
+      render(data);
+    }
+
+    function render(data) {
+      const stats = data.stats || { total: 0, by_type: {} };
+      const counts = stats.by_type || {};
+      els.total.textContent = stats.total || 0;
+      els.screenCount.textContent = (counts.screen_open || 0) + (counts.youtube_search || 0);
+      els.imageCount.textContent = (counts.image || 0) + (counts.shown_image || 0);
+      els.blockCount.textContent = (counts.cloud_blocked || 0) + (counts.screen_blocked || 0);
+      els.updated.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+
+      const events = data.events || [];
+      if (!events.length) {
+        els.events.innerHTML = '<div class="empty">No events yet.</div>';
+        return;
+      }
+
+      els.events.innerHTML = events.map(event => `
+        <div class="row">
+          <div>${when(event.timestamp)}</div>
+          <div>
+            <div class="summary">${event.summary || ''}</div>
+            <div class="details">${brief(event.details)}</div>
+          </div>
+          <div><span class="pill ${event.event_type || ''}">${event.event_type || 'event'}</span></div>
+          <div>${event.actor || ''}${event.profile ? ` / ${event.profile}` : ''}</div>
+        </div>
+      `).join('');
+    }
+
+    els.refresh.addEventListener('click', () => load().catch(showError));
+    els.filter.addEventListener('change', () => load().catch(showError));
+
+    const initialType = new URLSearchParams(window.location.search).get('event_type');
+    if (initialType) els.filter.value = initialType;
+
+    function showError(error) {
+      els.updated.textContent = error.message;
+    }
+
+    load().catch(showError);
+    setInterval(() => load().catch(() => {}), 30000);
+  </script>
+</body>
+</html>

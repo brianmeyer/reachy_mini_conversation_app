@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reachy Parent Panel</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='34' font-family='Arial' font-weight='700' fill='white'%3ER%3C/text%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --ink: #1f2528;
+      --muted: #626b70;
+      --line: #d8d1c4;
+      --panel: #fffdf8;
+      --panel-2: #edf6f4;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --danger: #b91c1c;
+      --ok: #166534;
+      --shadow: 0 10px 28px rgba(31, 37, 40, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.92);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .bar {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      color: white;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      min-height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      padding: 0 14px;
+      cursor: pointer;
+      box-shadow: none;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:hover { border-color: #b8ac9a; }
+    .btn:focus-visible { outline: 3px solid rgba(15, 118, 110, 0.25); outline-offset: 2px; }
+    .btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn.warn { background: var(--danger); color: white; border-color: var(--danger); }
+
+    main {
+      max-width: 1220px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      padding: 14px;
+      min-height: 104px;
+      display: grid;
+      align-content: space-between;
+      gap: 8px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .value {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      overflow: hidden;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .panel-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: var(--panel-2);
+    }
+
+    .panel-body {
+      padding: 14px 16px;
+    }
+
+    .rows {
+      display: grid;
+      gap: 10px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee6d9;
+    }
+
+    .row:last-child { border-bottom: 0; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .pill.ok { color: var(--ok); background: #dcfce7; border-color: #bbf7d0; }
+    .pill.warn { color: var(--accent-2); background: #ffedd5; border-color: #fed7aa; }
+    .pill.off { color: var(--danger); background: #fee2e2; border-color: #fecaca; }
+    .pill.neutral { color: #374151; background: #e5e7eb; border-color: #d1d5db; }
+
+    .artifacts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .artifact {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffaf0;
+      min-height: 136px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: 88px auto;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .thumb {
+      background: #e7ded0;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      overflow: hidden;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .artifact-meta {
+      padding: 8px;
+      min-width: 0;
+    }
+
+    .artifact-name {
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .artifact-sub {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    code {
+      background: #efe7d9;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 2px 5px;
+      font-size: 12px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      padding-bottom: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .bar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .actions {
+        justify-content: flex-start;
+      }
+
+      .status-strip, .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .artifacts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      main { padding: 12px; }
+      .bar { padding: 14px 12px; }
+      .artifacts { grid-template-columns: 1fr; }
+      .btn { width: 100%; }
+      .actions { width: 100%; }
+      .subtitle { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="bar">
+        <div class="brand">
+          <div class="mark">R</div>
+          <div>
+            <h1>Reachy Parent Panel</h1>
+            <div class="subtitle" id="updated">Loading status...</div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="refreshBtn" type="button">Refresh</button>
+          <a class="btn" href="/logs">Logs</a>
+          <a class="btn" href="/ops">Ops</a>
+          <a class="btn" href="/gallery">Gallery</a>
+          <a class="btn" href="/memory">Memory</a>
+          <a class="btn" href="/family">Family</a>
+          <a class="btn" href="/kids">Kids</a>
+          <a class="btn" href="/command">Command</a>
+          <button class="btn" id="clearBtn" type="button">Clear Screen</button>
+          <button class="btn warn" id="cloudBtn" type="button">Disable Cloud</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="status-strip" aria-label="Reachy status">
+        <div class="metric">
+          <div class="label">Bridge</div>
+          <div class="value" id="bridgeValue">...</div>
+          <div class="hint" id="bridgeHint">Mac helper service</div>
+        </div>
+        <div class="metric">
+          <div class="label">Cloud</div>
+          <div class="value" id="cloudValue">...</div>
+          <div class="hint">Ollama and Gemini controls</div>
+        </div>
+        <div class="metric">
+          <div class="label">Images Today</div>
+          <div class="value" id="imageValue">...</div>
+          <div class="hint" id="imageHint">Gemini quota</div>
+        </div>
+        <div class="metric">
+          <div class="label">Game Model</div>
+          <div class="value" id="modelValue">...</div>
+          <div class="hint">Default tool route</div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Latest Artifacts</h2>
+            <span class="pill neutral" id="artifactCount">0 items</span>
+          </div>
+          <div class="panel-body">
+            <div class="artifacts" id="artifacts"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Controls</h2>
+            <span class="pill neutral" id="policyPill">Checking</span>
+          </div>
+          <div class="panel-body rows">
+            <div class="row">
+              <div>
+                <strong>Cloud policy</strong>
+                <div class="hint">Local Mac Ollama models stay blocked.</div>
+              </div>
+              <span class="pill ok" id="ollamaPolicy">Cloud only</span>
+            </div>
+            <div class="row">
+              <div>
+                <strong>Gemini image model</strong>
+                <div class="hint" id="geminiModel">...</div>
+              </div>
+              <span class="pill neutral">Capped</span>
+            </div>
+            <div class="row">
+              <div>
+                <strong>Allowed screen domains</strong>
+                <div class="hint" id="allowlist">...</div>
+              </div>
+              <span class="pill neutral">Allowlist</span>
+            </div>
+            <div class="row">
+              <div>
+                <strong>Memory review</strong>
+                <div class="hint" id="memoryReview">...</div>
+              </div>
+              <a class="pill neutral" href="/memory">Review</a>
+            </div>
+            <div class="row">
+              <div>
+                <strong>Jetson resource</strong>
+                <div class="hint" id="resourceDecision">No decision logged yet.</div>
+                <div class="hint" id="resourceAction"></div>
+              </div>
+              <a class="pill neutral" id="resourcePill" href="/logs?event_type=resource_decision">Check</a>
+            </div>
+            <div class="row">
+              <div>
+                <strong>Build-day command</strong>
+                <div class="hint"><code>scripts/prebuild_check.sh</code></div>
+              </div>
+              <span class="pill neutral">Ready</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-note">
+        Physical movement stays gated until Reachy hardware enumerates and tiny safe motion passes.
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const state = { status: null };
+
+    const els = {
+      updated: document.getElementById('updated'),
+      bridgeValue: document.getElementById('bridgeValue'),
+      bridgeHint: document.getElementById('bridgeHint'),
+      cloudValue: document.getElementById('cloudValue'),
+      cloudBtn: document.getElementById('cloudBtn'),
+      imageValue: document.getElementById('imageValue'),
+      imageHint: document.getElementById('imageHint'),
+      modelValue: document.getElementById('modelValue'),
+      artifacts: document.getElementById('artifacts'),
+      artifactCount: document.getElementById('artifactCount'),
+      policyPill: document.getElementById('policyPill'),
+      ollamaPolicy: document.getElementById('ollamaPolicy'),
+      geminiModel: document.getElementById('geminiModel'),
+      allowlist: document.getElementById('allowlist'),
+      memoryReview: document.getElementById('memoryReview'),
+      resourceDecision: document.getElementById('resourceDecision'),
+      resourceAction: document.getElementById('resourceAction'),
+      resourcePill: document.getElementById('resourcePill'),
+      refreshBtn: document.getElementById('refreshBtn'),
+      clearBtn: document.getElementById('clearBtn')
+    };
+
+    function pillClass(enabled) {
+      return enabled ? 'pill ok' : 'pill off';
+    }
+
+    function fmtBytes(bytes) {
+      if (bytes > 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+      if (bytes > 1024) return `${Math.round(bytes / 1024)} KB`;
+      return `${bytes} B`;
+    }
+
+    async function loadStatus() {
+      els.updated.textContent = 'Refreshing...';
+      const [statusRes, resourceRes] = await Promise.all([
+        fetch('/admin/status', { cache: 'no-store' }),
+        fetch('/events?limit=1&event_type=resource_decision', { cache: 'no-store' })
+      ]);
+      if (!statusRes.ok) throw new Error(`Status failed: ${statusRes.status}`);
+      if (!resourceRes.ok) throw new Error(`Resource status failed: ${resourceRes.status}`);
+      state.status = await statusRes.json();
+      state.resource = await resourceRes.json();
+      render();
+    }
+
+    function render() {
+      const s = state.status;
+      const quota = s.gemini_image_quota || { used: 0, limit: 0 };
+      const cloudEnabled = Boolean(s.cloud_enabled);
+
+      els.updated.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+      els.bridgeValue.textContent = s.ok ? 'Online' : 'Check';
+      els.bridgeHint.textContent = s.service || 'Mac bridge';
+      els.cloudValue.textContent = cloudEnabled ? 'Enabled' : 'Off';
+      els.cloudBtn.textContent = cloudEnabled ? 'Disable Cloud' : 'Enable Cloud';
+      els.cloudBtn.className = cloudEnabled ? 'btn warn' : 'btn primary';
+      els.imageValue.textContent = `${quota.used}/${quota.limit}`;
+      els.imageHint.textContent = quota.date || 'today';
+      els.modelValue.textContent = s.game_model || (s.routing && s.routing.playable_game_generation) || 'unknown';
+      els.policyPill.textContent = cloudEnabled ? 'Cloud enabled' : 'Cloud disabled';
+      els.policyPill.className = pillClass(cloudEnabled);
+      els.ollamaPolicy.textContent = s.ollama_cloud_only ? 'Cloud only' : 'Local allowed';
+      els.ollamaPolicy.className = s.ollama_cloud_only ? 'pill ok' : 'pill warn';
+      els.geminiModel.textContent = s.gemini_image_model || 'not configured';
+      els.allowlist.textContent = (s.screen_allowlist || []).join(', ');
+      const memoryStats = s.memory_proposal_stats || { by_status: {} };
+      const pendingMemories = (memoryStats.by_status || {}).pending || 0;
+      els.memoryReview.textContent = `${pendingMemories} pending proposal${pendingMemories === 1 ? '' : 's'}`;
+      renderResourceDecision();
+      renderArtifacts(s.latest_artifacts || []);
+    }
+
+    function renderResourceDecision() {
+      const event = (state.resource && state.resource.events && state.resource.events[0]) || null;
+      const decision = event && event.details && event.details.decision;
+      if (!decision) {
+        els.resourceDecision.textContent = 'No decision logged yet.';
+        els.resourceAction.textContent = '';
+        els.resourcePill.textContent = 'Check';
+        els.resourcePill.className = 'pill neutral';
+        return;
+      }
+      els.resourceDecision.textContent = `${decision.requested_mode}: ${decision.severity} · Gemma ${decision.allow_local_gemma ? 'allowed' : 'blocked'} · GPU STT ${decision.allow_gpu_stt ? 'allowed' : 'blocked'}`;
+      els.resourceAction.textContent = (decision.actions || [])[0] || '';
+      els.resourcePill.textContent = decision.severity;
+      els.resourcePill.className = decision.severity === 'critical' ? 'pill off' : decision.severity === 'ok' ? 'pill ok' : 'pill warn';
+    }
+
+    function renderArtifacts(items) {
+      els.artifactCount.textContent = `${items.length} item${items.length === 1 ? '' : 's'}`;
+      if (!items.length) {
+        els.artifacts.innerHTML = '<div class="hint">No artifacts yet.</div>';
+        return;
+      }
+      els.artifacts.innerHTML = items.map(item => {
+        const thumb = item.kind === 'image'
+          ? `<img src="${item.url}" alt="">`
+          : `<span>${item.kind.toUpperCase()}</span>`;
+        return `
+          <a class="artifact" href="${item.url}" target="_blank" rel="noopener">
+            <div class="thumb">${thumb}</div>
+            <div class="artifact-meta">
+              <div class="artifact-name">${item.name}</div>
+              <div class="artifact-sub">${fmtBytes(item.bytes)} · ${item.modified}</div>
+            </div>
+          </a>
+        `;
+      }).join('');
+    }
+
+    async function toggleCloud() {
+      const next = !Boolean(state.status && state.status.cloud_enabled);
+      const res = await fetch('/admin/cloud', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: next })
+      });
+      if (!res.ok) throw new Error(`Cloud toggle failed: ${res.status}`);
+      state.status = await res.json();
+      render();
+    }
+
+    async function clearScreen() {
+      await fetch('/screen/clear', { method: 'POST' });
+    }
+
+    els.refreshBtn.addEventListener('click', () => loadStatus().catch(showError));
+    els.cloudBtn.addEventListener('click', () => toggleCloud().catch(showError));
+    els.clearBtn.addEventListener('click', () => clearScreen().catch(showError));
+
+    function showError(error) {
+      els.updated.textContent = error.message;
+    }
+
+    loadStatus().catch(showError);
+    setInterval(() => loadStatus().catch(() => {}), 30000);
+  </script>
+</body>
+</html>

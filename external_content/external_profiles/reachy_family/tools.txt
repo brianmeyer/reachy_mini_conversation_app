@@ -1,0 +1,19 @@
+# Family robot tool allow-list.
+
+dance
+stop_dance
+play_emotion
+stop_emotion
+move_head
+camera
+head_tracking
+do_nothing
+
+parent_log_event
+family_memory
+show_kid_schedule
+show_chore_board
+open_artifact
+story_screen_image
+request_codex_async
+

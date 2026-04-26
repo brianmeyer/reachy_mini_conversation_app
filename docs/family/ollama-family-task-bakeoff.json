@@ -1,0 +1,814 @@
+{
+  "tasks": [
+    {
+      "id": "memory_proposal",
+      "prompt": "Turn this log entry into one concise parent-reviewable memory proposal. Do not invent facts. Output JSON with keys proposed_memory and reason.\nProfile: Preston. Log: Preston showed Reachy a drawing captioned 'space castle with a robot guard'.",
+      "must": [
+        "proposed_memory",
+        "reason",
+        "Preston",
+        "space castle"
+      ],
+      "max_chars": 500
+    },
+    {
+      "id": "calendar_extract",
+      "prompt": "Extract a family calendar event as JSON only. Keys: title, date, category, profiles, notes.\nInput: Build Reachy with Preston and Greyson on April 25, 2026. It is a family build day.",
+      "must": [
+        "title",
+        "date",
+        "category",
+        "profiles",
+        "2026-04-25"
+      ],
+      "max_chars": 700
+    },
+    {
+      "id": "kid_homework_coach",
+      "prompt": "A 9 year old asks: what is 7 x 8? Answer like a playful tutor. Give a hint first, then the answer. Keep it under 70 words.",
+      "must": [
+        "56"
+      ],
+      "max_chars": 500
+    },
+    {
+      "id": "parent_ops_summary",
+      "prompt": "Summarize this robot status for Brian in 4 short bullets: cloud enabled, game model glm-5.1, one pending Preston memory, family board has one schedule item and one chore.",
+      "must": [
+        "cloud",
+        "glm",
+        "Preston",
+        "family"
+      ],
+      "max_chars": 700
+    }
+  ],
+  "rows": [
+    {
+      "task": "memory_proposal",
+      "model": "glm-5.1:cloud",
+      "status": 200,
+      "seconds": 37.887,
+      "text": "```json\n{\n  \"proposed_memory\": \"Preston showed Reachy a drawing of a space castle with a robot guard.\",\n  \"reason\": \"Captures Preston's creative interests in space and robots, and documents his engagement with Reachy through sharing his artwork.\"\n}\n```",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "memory_proposal",
+      "model": "kimi-k2.6:cloud",
+      "status": 200,
+      "seconds": 22.449,
+      "text": "```json\n{\n  \"proposed_memory\": \"Preston showed Reachy a drawing captioned 'space castle with a robot guard'.\",\n  \"reason\": \"Captures the logged interaction exactly as reported, preserving Preston's shared interest in a space-and-robot-themed image without inferring details not present in the log.\"\n}\n```",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "memory_proposal",
+      "model": "deepseek-v4-flash:cloud",
+      "status": 200,
+      "seconds": 7.782,
+      "text": "```json\n{\n  \"proposed_memory\": \"Preston showed Reachy a drawing captioned 'space castle with a robot guard'.\",\n  \"reason\": \"To record Preston's creative activity and interest in space and robotic themes, as shown in the drawing presented to Reachy.\"\n}\n```",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "memory_proposal",
+      "model": "minimax-m2.7:cloud",
+      "status": 200,
+      "seconds": 20.09,
+      "text": "\n\n```json\n{\n  \"proposed_memory\": \"Preston showed Reachy a drawing captioned 'space castle with a robot guard'.\",\n  \"reason\": \"Captures Preston's creative output and the specific content of the drawing for parent review and future context.\"\n}\n```",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "memory_proposal",
+      "model": "gemma4:31b-cloud",
+      "status": 200,
+      "seconds": 1.696,
+      "text": "```json\n{\n  \"proposed_memory\": \"Preston showed Reachy a drawing of a space castle with a robot guard.\",\n  \"reason\": \"Records a specific creative activity and interaction between Preston and Reachy.\"\n}\n```",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "memory_proposal",
+      "model": "qwen3.5:cloud",
+      "status": 503,
+      "seconds": 60.003,
+      "text": "{\"detail\": {\"message\": \"No local reasoning backend answered in time.\", \"hermes\": \"Try `hermes doctor` if Hermes is installed.\", \"ollama\": {\"ok\": false, \"backend\": \"ollama\", \"model\": \"qwen3.5:cloud\", \"error\": \"timed out\"}}}",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": false,
+        "valid_json": true
+      },
+      "score": 3
+    },
+    {
+      "task": "memory_proposal",
+      "model": "nemotron-3-super:cloud",
+      "status": 200,
+      "seconds": 0.626,
+      "text": "{\n  \"proposed_memory\": \"Preston drew a space castle with a robot guard and showed it to Reachy.\",\n  \"reason\": \"This is a concise, factual summary of the observed behavior: Preston created a drawing with a specific caption and shared it with Reachy, requiring no inference beyond what is stated.\"\n}",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "calendar_extract",
+      "model": "glm-5.1:cloud",
+      "status": 503,
+      "seconds": 60.003,
+      "text": "{\"detail\": {\"message\": \"No local reasoning backend answered in time.\", \"hermes\": \"Try `hermes doctor` if Hermes is installed.\", \"ollama\": {\"ok\": false, \"backend\": \"ollama\", \"model\": \"glm-5.1:cloud\", \"error\": \"timed out\"}}}",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": false,
+        "valid_json": true
+      },
+      "score": 3
+    },
+    {
+      "task": "calendar_extract",
+      "model": "kimi-k2.6:cloud",
+      "status": 200,
+      "seconds": 44.415,
+      "text": "{\"title\":\"Build Reachy\",\"date\":\"2026-04-25\",\"category\":\"Family Build Day\",\"profiles\":[\"Preston\",\"Greyson\"],\"notes\":\"It is a family build day.\"}",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "calendar_extract",
+      "model": "deepseek-v4-flash:cloud",
+      "status": 200,
+      "seconds": 12.517,
+      "text": "{\"title\": \"Build Reachy\", \"date\": \"2026-04-25\", \"category\": \"family\", \"profiles\": [\"Preston\", \"Greyson\"], \"notes\": \"Family build day.\"}",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "calendar_extract",
+      "model": "minimax-m2.7:cloud",
+      "status": 200,
+      "seconds": 10.808,
+      "text": "\n\n{\n  \"title\": \"Build Reachy with Preston and Greyson\",\n  \"date\": \"2026-04-25\",\n  \"category\": \"Family Build Day\",\n  \"profiles\": [\"Preston\", \"Greyson\"],\n  \"notes\": \"Family build day.\"\n}",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "calendar_extract",
+      "model": "gemma4:31b-cloud",
+      "status": 200,
+      "seconds": 1.581,
+      "text": "```json\n{\n  \"title\": \"Build Reachy\",\n  \"date\": \"2026-04-25\",\n  \"category\": \"Family\",\n  \"profiles\": [\"Preston\", \"Greyson\"],\n  \"notes\": \"Family build day\"\n}\n```",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "calendar_extract",
+      "model": "qwen3.5:cloud",
+      "status": 200,
+      "seconds": 26.008,
+      "text": "{\n  \"title\": \"Build Reachy\",\n  \"date\": \"2026-04-25\",\n  \"category\": \"Family\",\n  \"profiles\": [\n    \"Preston\",\n    \"Greyson\"\n  ],\n  \"notes\": \"It is a family build day.\"\n}",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "calendar_extract",
+      "model": "nemotron-3-super:cloud",
+      "status": 200,
+      "seconds": 7.377,
+      "text": "{\n  \"title\": \"Build Reachy with Preston and Greyson\",\n  \"date\": \"2026-04-25\",\n  \"category\": \"Family Activity\",\n  \"profiles\": [\"Preston\", \"Greyson\"],\n  \"notes\": \"It is a family build day.\"\n}",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true,
+        "valid_json": true
+      },
+      "score": 4
+    },
+    {
+      "task": "kid_homework_coach",
+      "model": "glm-5.1:cloud",
+      "status": 200,
+      "seconds": 31.815,
+      "text": "Ready for a math trick? Think of the numbers counting up: 5, 6, 7, 8. Notice how 56 comes right before 78? That\u2019s your hint! \n\nSo, 7 x 8 is... 56!",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "kid_homework_coach",
+      "model": "kimi-k2.6:cloud",
+      "status": 200,
+      "seconds": 27.679,
+      "text": "Hint: There's a classic rhyme\u2014five, six, seven, eight! Just squish 5 and 6 together. **7 x 8 = 56!**",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "kid_homework_coach",
+      "model": "deepseek-v4-flash:cloud",
+      "status": 200,
+      "seconds": 3.827,
+      "text": "**Hint:** Try 7 x 7 = 49, then add one more 7. Or imagine 5 eights (40) plus 2 eights (16)!\n\n**Answer:** 7 x 8 = **56**",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "kid_homework_coach",
+      "model": "minimax-m2.7:cloud",
+      "status": 200,
+      "seconds": 21.466,
+      "text": "\n\nHere\u2019s a fun hint: imagine you have 7 friendly piles of 8 stars each. Count all the stars \u2013 you\u2019ll see the number climb: 8,\u202f16,\u202f24,\u202f32,\u202f40,\u202f48,\u202f56. Great counting! The answer is **56**.",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "kid_homework_coach",
+      "model": "gemma4:31b-cloud",
+      "status": 200,
+      "seconds": 1.637,
+      "text": "Hmm, let me think... I'll give you a clue! \n\nIf you know that **7 x 7 is 49**, just add one more 7 to that number! Can you do it? \n\nDrumroll please... \ud83e\udd41\n\n**7 x 8 = 56!** \ud83c\udf1f High five!",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "kid_homework_coach",
+      "model": "qwen3.5:cloud",
+      "status": 200,
+      "seconds": 36.867,
+      "text": "Hey math wizard! Here's a sneaky trick: just count 5, 6, 7, 8. See how they line up in order? The first two numbers hold the secret answer for the last two! So, when 7 meets 8, they make... 56! Wow, you're multiplying like a total pro! Keep up the awesome work!",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "kid_homework_coach",
+      "model": "nemotron-3-super:cloud",
+      "status": 200,
+      "seconds": 3.992,
+      "text": "Hey math explorer! \ud83c\udf1f Here\u2019s a hint: 7 x 8 is just two 7s plus six more 7s\u2026 or think of it as 7 doubled, then doubled again, and then add one more 7! Still thinking?  \nOkay, drumroll\u2026 it\u2019s 56!  \nYou\u2019re doing awesome \u2014 keep rocking those times tables! \ud83c\udf89\ud83e\udde0\ud83d\udcaa  \n(69 words)",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "parent_ops_summary",
+      "model": "glm-5.1:cloud",
+      "status": 200,
+      "seconds": 44.035,
+      "text": "Hi Brian, here is the current robot status:\n\n*   **Cloud:** Enabled\n*   **Game Model:** GLM-5.1\n*   **Preston Memory:** 1 pending\n*   **Family Board:** 1 schedule item & 1 chore",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "parent_ops_summary",
+      "model": "kimi-k2.6:cloud",
+      "status": 200,
+      "seconds": 16.286,
+      "text": "- Cloud enabled  \n- Game model: GLM-5.1  \n- One pending Preston memory  \n- Family board: 1 schedule item, 1 chore",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "parent_ops_summary",
+      "model": "deepseek-v4-flash:cloud",
+      "status": 200,
+      "seconds": 1.412,
+      "text": "- Cloud enabled  \n- Game model: glm-5.1  \n- 1 pending Preston memory  \n- Family board: 1 schedule item, 1 chore",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "parent_ops_summary",
+      "model": "minimax-m2.7:cloud",
+      "status": 200,
+      "seconds": 7.231,
+      "text": "\n\n- **Cloud:** enabled  \n- **Game model:** glm\u20115.1  \n- **Memory:** 1 pending Preston memory  \n- **Family board:** 1 schedule item + 1 chore",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "parent_ops_summary",
+      "model": "gemma4:31b-cloud",
+      "status": 200,
+      "seconds": 1.962,
+      "text": "Here is the robot status for Brian:\n\n*   **Cloud:** Enabled\n*   **Model:** GLM-5.1 (Game)\n*   **Memory:** 1 pending (Preston)\n*   **Family Board:** 1 schedule item, 1 chore",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "parent_ops_summary",
+      "model": "qwen3.5:cloud",
+      "status": 200,
+      "seconds": 12.601,
+      "text": "*   Cloud: Enabled\n*   Model: Game glm-5.1\n*   Memory: 1 pending Preston item\n*   Family Board: 1 schedule, 1 chore",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    },
+    {
+      "task": "parent_ops_summary",
+      "model": "nemotron-3-super:cloud",
+      "status": 200,
+      "seconds": 3.037,
+      "text": "- The system is cloud-enabled, supporting remote access and updates.  \n- It runs the game model GLM-5.1 for interactive experiences.  \n- There is one pending memory update for Preston awaiting processing.  \n- The family board currently shows one schedule item and one chore to complete.",
+      "checks": {
+        "nonempty": true,
+        "not_too_long": true,
+        "has_required_terms": true
+      },
+      "score": 3
+    }
+  ],
+  "leaderboard": {
+    "memory_proposal": [
+      {
+        "task": "memory_proposal",
+        "model": "nemotron-3-super:cloud",
+        "status": 200,
+        "seconds": 0.626,
+        "text": "{\n  \"proposed_memory\": \"Preston drew a space castle with a robot guard and showed it to Reachy.\",\n  \"reason\": \"This is a concise, factual summary of the observed behavior: Preston created a drawing with a specific caption and shared it with Reachy, requiring no inference beyond what is stated.\"\n}",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "memory_proposal",
+        "model": "gemma4:31b-cloud",
+        "status": 200,
+        "seconds": 1.696,
+        "text": "```json\n{\n  \"proposed_memory\": \"Preston showed Reachy a drawing of a space castle with a robot guard.\",\n  \"reason\": \"Records a specific creative activity and interaction between Preston and Reachy.\"\n}\n```",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "memory_proposal",
+        "model": "deepseek-v4-flash:cloud",
+        "status": 200,
+        "seconds": 7.782,
+        "text": "```json\n{\n  \"proposed_memory\": \"Preston showed Reachy a drawing captioned 'space castle with a robot guard'.\",\n  \"reason\": \"To record Preston's creative activity and interest in space and robotic themes, as shown in the drawing presented to Reachy.\"\n}\n```",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "memory_proposal",
+        "model": "minimax-m2.7:cloud",
+        "status": 200,
+        "seconds": 20.09,
+        "text": "\n\n```json\n{\n  \"proposed_memory\": \"Preston showed Reachy a drawing captioned 'space castle with a robot guard'.\",\n  \"reason\": \"Captures Preston's creative output and the specific content of the drawing for parent review and future context.\"\n}\n```",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "memory_proposal",
+        "model": "kimi-k2.6:cloud",
+        "status": 200,
+        "seconds": 22.449,
+        "text": "```json\n{\n  \"proposed_memory\": \"Preston showed Reachy a drawing captioned 'space castle with a robot guard'.\",\n  \"reason\": \"Captures the logged interaction exactly as reported, preserving Preston's shared interest in a space-and-robot-themed image without inferring details not present in the log.\"\n}\n```",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "memory_proposal",
+        "model": "glm-5.1:cloud",
+        "status": 200,
+        "seconds": 37.887,
+        "text": "```json\n{\n  \"proposed_memory\": \"Preston showed Reachy a drawing of a space castle with a robot guard.\",\n  \"reason\": \"Captures Preston's creative interests in space and robots, and documents his engagement with Reachy through sharing his artwork.\"\n}\n```",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "memory_proposal",
+        "model": "qwen3.5:cloud",
+        "status": 503,
+        "seconds": 60.003,
+        "text": "{\"detail\": {\"message\": \"No local reasoning backend answered in time.\", \"hermes\": \"Try `hermes doctor` if Hermes is installed.\", \"ollama\": {\"ok\": false, \"backend\": \"ollama\", \"model\": \"qwen3.5:cloud\", \"error\": \"timed out\"}}}",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": false,
+          "valid_json": true
+        },
+        "score": 3
+      }
+    ],
+    "calendar_extract": [
+      {
+        "task": "calendar_extract",
+        "model": "gemma4:31b-cloud",
+        "status": 200,
+        "seconds": 1.581,
+        "text": "```json\n{\n  \"title\": \"Build Reachy\",\n  \"date\": \"2026-04-25\",\n  \"category\": \"Family\",\n  \"profiles\": [\"Preston\", \"Greyson\"],\n  \"notes\": \"Family build day\"\n}\n```",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "calendar_extract",
+        "model": "nemotron-3-super:cloud",
+        "status": 200,
+        "seconds": 7.377,
+        "text": "{\n  \"title\": \"Build Reachy with Preston and Greyson\",\n  \"date\": \"2026-04-25\",\n  \"category\": \"Family Activity\",\n  \"profiles\": [\"Preston\", \"Greyson\"],\n  \"notes\": \"It is a family build day.\"\n}",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "calendar_extract",
+        "model": "minimax-m2.7:cloud",
+        "status": 200,
+        "seconds": 10.808,
+        "text": "\n\n{\n  \"title\": \"Build Reachy with Preston and Greyson\",\n  \"date\": \"2026-04-25\",\n  \"category\": \"Family Build Day\",\n  \"profiles\": [\"Preston\", \"Greyson\"],\n  \"notes\": \"Family build day.\"\n}",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "calendar_extract",
+        "model": "deepseek-v4-flash:cloud",
+        "status": 200,
+        "seconds": 12.517,
+        "text": "{\"title\": \"Build Reachy\", \"date\": \"2026-04-25\", \"category\": \"family\", \"profiles\": [\"Preston\", \"Greyson\"], \"notes\": \"Family build day.\"}",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "calendar_extract",
+        "model": "qwen3.5:cloud",
+        "status": 200,
+        "seconds": 26.008,
+        "text": "{\n  \"title\": \"Build Reachy\",\n  \"date\": \"2026-04-25\",\n  \"category\": \"Family\",\n  \"profiles\": [\n    \"Preston\",\n    \"Greyson\"\n  ],\n  \"notes\": \"It is a family build day.\"\n}",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "calendar_extract",
+        "model": "kimi-k2.6:cloud",
+        "status": 200,
+        "seconds": 44.415,
+        "text": "{\"title\":\"Build Reachy\",\"date\":\"2026-04-25\",\"category\":\"Family Build Day\",\"profiles\":[\"Preston\",\"Greyson\"],\"notes\":\"It is a family build day.\"}",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true,
+          "valid_json": true
+        },
+        "score": 4
+      },
+      {
+        "task": "calendar_extract",
+        "model": "glm-5.1:cloud",
+        "status": 503,
+        "seconds": 60.003,
+        "text": "{\"detail\": {\"message\": \"No local reasoning backend answered in time.\", \"hermes\": \"Try `hermes doctor` if Hermes is installed.\", \"ollama\": {\"ok\": false, \"backend\": \"ollama\", \"model\": \"glm-5.1:cloud\", \"error\": \"timed out\"}}}",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": false,
+          "valid_json": true
+        },
+        "score": 3
+      }
+    ],
+    "kid_homework_coach": [
+      {
+        "task": "kid_homework_coach",
+        "model": "gemma4:31b-cloud",
+        "status": 200,
+        "seconds": 1.637,
+        "text": "Hmm, let me think... I'll give you a clue! \n\nIf you know that **7 x 7 is 49**, just add one more 7 to that number! Can you do it? \n\nDrumroll please... \ud83e\udd41\n\n**7 x 8 = 56!** \ud83c\udf1f High five!",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "kid_homework_coach",
+        "model": "deepseek-v4-flash:cloud",
+        "status": 200,
+        "seconds": 3.827,
+        "text": "**Hint:** Try 7 x 7 = 49, then add one more 7. Or imagine 5 eights (40) plus 2 eights (16)!\n\n**Answer:** 7 x 8 = **56**",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "kid_homework_coach",
+        "model": "nemotron-3-super:cloud",
+        "status": 200,
+        "seconds": 3.992,
+        "text": "Hey math explorer! \ud83c\udf1f Here\u2019s a hint: 7 x 8 is just two 7s plus six more 7s\u2026 or think of it as 7 doubled, then doubled again, and then add one more 7! Still thinking?  \nOkay, drumroll\u2026 it\u2019s 56!  \nYou\u2019re doing awesome \u2014 keep rocking those times tables! \ud83c\udf89\ud83e\udde0\ud83d\udcaa  \n(69 words)",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "kid_homework_coach",
+        "model": "minimax-m2.7:cloud",
+        "status": 200,
+        "seconds": 21.466,
+        "text": "\n\nHere\u2019s a fun hint: imagine you have 7 friendly piles of 8 stars each. Count all the stars \u2013 you\u2019ll see the number climb: 8,\u202f16,\u202f24,\u202f32,\u202f40,\u202f48,\u202f56. Great counting! The answer is **56**.",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "kid_homework_coach",
+        "model": "kimi-k2.6:cloud",
+        "status": 200,
+        "seconds": 27.679,
+        "text": "Hint: There's a classic rhyme\u2014five, six, seven, eight! Just squish 5 and 6 together. **7 x 8 = 56!**",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "kid_homework_coach",
+        "model": "glm-5.1:cloud",
+        "status": 200,
+        "seconds": 31.815,
+        "text": "Ready for a math trick? Think of the numbers counting up: 5, 6, 7, 8. Notice how 56 comes right before 78? That\u2019s your hint! \n\nSo, 7 x 8 is... 56!",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "kid_homework_coach",
+        "model": "qwen3.5:cloud",
+        "status": 200,
+        "seconds": 36.867,
+        "text": "Hey math wizard! Here's a sneaky trick: just count 5, 6, 7, 8. See how they line up in order? The first two numbers hold the secret answer for the last two! So, when 7 meets 8, they make... 56! Wow, you're multiplying like a total pro! Keep up the awesome work!",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      }
+    ],
+    "parent_ops_summary": [
+      {
+        "task": "parent_ops_summary",
+        "model": "deepseek-v4-flash:cloud",
+        "status": 200,
+        "seconds": 1.412,
+        "text": "- Cloud enabled  \n- Game model: glm-5.1  \n- 1 pending Preston memory  \n- Family board: 1 schedule item, 1 chore",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "parent_ops_summary",
+        "model": "gemma4:31b-cloud",
+        "status": 200,
+        "seconds": 1.962,
+        "text": "Here is the robot status for Brian:\n\n*   **Cloud:** Enabled\n*   **Model:** GLM-5.1 (Game)\n*   **Memory:** 1 pending (Preston)\n*   **Family Board:** 1 schedule item, 1 chore",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "parent_ops_summary",
+        "model": "nemotron-3-super:cloud",
+        "status": 200,
+        "seconds": 3.037,
+        "text": "- The system is cloud-enabled, supporting remote access and updates.  \n- It runs the game model GLM-5.1 for interactive experiences.  \n- There is one pending memory update for Preston awaiting processing.  \n- The family board currently shows one schedule item and one chore to complete.",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "parent_ops_summary",
+        "model": "minimax-m2.7:cloud",
+        "status": 200,
+        "seconds": 7.231,
+        "text": "\n\n- **Cloud:** enabled  \n- **Game model:** glm\u20115.1  \n- **Memory:** 1 pending Preston memory  \n- **Family board:** 1 schedule item + 1 chore",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "parent_ops_summary",
+        "model": "qwen3.5:cloud",
+        "status": 200,
+        "seconds": 12.601,
+        "text": "*   Cloud: Enabled\n*   Model: Game glm-5.1\n*   Memory: 1 pending Preston item\n*   Family Board: 1 schedule, 1 chore",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "parent_ops_summary",
+        "model": "kimi-k2.6:cloud",
+        "status": 200,
+        "seconds": 16.286,
+        "text": "- Cloud enabled  \n- Game model: GLM-5.1  \n- One pending Preston memory  \n- Family board: 1 schedule item, 1 chore",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      },
+      {
+        "task": "parent_ops_summary",
+        "model": "glm-5.1:cloud",
+        "status": 200,
+        "seconds": 44.035,
+        "text": "Hi Brian, here is the current robot status:\n\n*   **Cloud:** Enabled\n*   **Game Model:** GLM-5.1\n*   **Preston Memory:** 1 pending\n*   **Family Board:** 1 schedule item & 1 chore",
+        "checks": {
+          "nonempty": true,
+          "not_too_long": true,
+          "has_required_terms": true
+        },
+        "score": 3
+      }
+    ]
+  }
+}
