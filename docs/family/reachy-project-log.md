@@ -192,6 +192,52 @@ Evidence:
 - [Jetson Ground-Up Stack Reset](jetson-ground-up-stack-reset.md)
 - [Latency Benchmarks](reachy-latency-benchmarks.md)
 
+### 2026-04-26 Gemini Live Model And Spend Guard
+
+Corrected stale bridge defaults from `gemini-2.5-flash-native-audio-preview-12-2025`
+to `gemini-3.1-flash-live-preview`. Google docs say Gemini 3.1 Flash Live is
+the low-latency A2A model and explicitly call out migrating from the 2.5 native
+audio preview. The Mac bridge now exposes the actual configured Live model
+instead of a generic `gemini-live` label.
+
+Measured probes:
+
+- Direct SDK probe using `send_realtime_input`: first audio about 732 ms, total
+  about 1.6 s for a tiny "ready" prompt.
+- Local bridge endpoint after restart: first audio about 1.45 s, total about
+  2.34 s for a tiny "ready" prompt.
+
+Cost guard:
+
+- Gemini 3.1 Flash Live paid pricing used in the dashboard estimate:
+  `$0.005/min` audio input, `$0.018/min` audio output, `$0.002/min`
+  image/video input.
+- The parent ops page now shows the configured model, used Live seconds, and an
+  estimated spend if dry-run sessions had been real.
+- Keep wake/VAD local and open Live only after explicit wake/interaction so the
+  meter is not running during room noise.
+
+Comparison notes:
+
+- OpenAI Realtime API is separate from Codex OAuth/subscription usage. It is
+  usage-priced; `gpt-realtime-1.5` audio is `$32/M` input audio tokens and
+  `$64/M` output audio tokens, while `gpt-realtime-mini` is `$10/M` input audio
+  tokens and `$20/M` output audio tokens.
+- xAI/Grok Voice Agent is `$0.05/min` audio duration, with tool calls charged
+  separately. Current docs recommend `grok-voice-think-fast-1.0`; the older
+  `grok-voice-fast-1.0` default is marked legacy/deprecated.
+- Gemini Live remains the best current fit for Reachy's "look at this" video
+  mode because OpenAI Realtime and Grok Voice do not replace continuous
+  audio/video Live sessions.
+
+Sources:
+
+- Gemini 3.1 Flash Live model: https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-live-preview
+- Gemini pricing: https://ai.google.dev/gemini-api/docs/pricing
+- OpenAI Realtime costs: https://developers.openai.com/api/docs/guides/realtime-costs
+- OpenAI pricing: https://developers.openai.com/api/docs/pricing
+- xAI Voice Agent pricing: https://docs.x.ai/developers/models/voice-agent-api
+
 ### Direct Jetson Cloud Path
 
 Codex CLI is installed on the Jetson and logged in with ChatGPT.

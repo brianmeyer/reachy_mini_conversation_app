@@ -168,7 +168,8 @@
       el('mediaCount').textContent = `${effective.length} URLs`;
       el('allowRows').innerHTML = effective.map(url => row(url, 'Allowed screen prefix')).join('');
       el('emotionState').textContent = JSON.stringify(emotion.state, null, 2);
-      el('liveStatus').textContent = `Prototype: ${live.live.prototype}. Used ${live.live.used_seconds_today}s of ${live.live.daily_cap_seconds}s today. ${live.live.note}`;
+      const spend = live.live.spend_estimate || {};
+      el('liveStatus').textContent = `${live.live.model} · ${live.live.prototype}. Used ${live.live.used_seconds_today}s of ${live.live.daily_cap_seconds}s today. Est. if real today $${fmt(spend.estimated_if_real_today_usd)} · monthly at cap $${fmt(spend.monthly_audio_video_at_daily_cap_usd)}. ${live.live.note}`;
     }
     el('refresh').addEventListener('click', load);
     el('allowBtn').addEventListener('click', async () => {
@@ -189,7 +190,7 @@
     el('liveProbeBtn').addEventListener('click', async () => {
       el('liveProbe').textContent = 'Running...';
       try {
-        const result = await getJSON('/gemini/live/probe', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({response_modality:'TEXT'}) });
+        const result = await getJSON('/gemini/live/probe', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({response_modality:'AUDIO'}) });
         el('liveProbe').textContent = JSON.stringify(result, null, 2);
       } catch (err) {
         el('liveProbe').textContent = err.message;

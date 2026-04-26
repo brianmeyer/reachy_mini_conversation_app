@@ -508,8 +508,10 @@ def test_emotion_and_gemini_live_dry_run_state(tmp_path: Path, monkeypatch) -> N
     live = client.post("/gemini/live/session", json={"mode": "audio_video", "requested_seconds": 60, "dry_run": True})
     assert live.status_code == 200
     assert live.json()["live"]["provider"] == "gemini"
+    assert live.json()["live"]["model"] == bridge.settings.gemini_live_model
     assert live.json()["live"]["used_seconds_today"] == 60
     assert live.json()["live"]["remaining_seconds_today"] == 60
+    assert live.json()["live"]["spend_estimate"]["estimated_if_real_today_usd"] > 0
 
 
 def test_reason_prefers_openai_then_falls_back_to_ollama(tmp_path: Path, monkeypatch) -> None:

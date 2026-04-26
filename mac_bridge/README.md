@@ -192,6 +192,6 @@ curl -X POST http://127.0.0.1:8787/gemini/live/session \
   -d '{"mode":"audio","requested_seconds":60,"dry_run":true}'
 curl -X POST http://127.0.0.1:8787/gemini/live/probe \
   -H 'Content-Type: application/json' \
-  -d '{"response_modality":"TEXT"}'
+  -d '{"response_modality":"AUDIO"}'
 python scripts/ollama_family_task_bakeoff.py
 ```

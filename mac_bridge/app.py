@@ -40,6 +40,14 @@ ARTIFACT_DIR = ROOT_DIR / "artifacts"
 STATIC_DIR = ROOT_DIR / "static"
 BRIDGE_PORT = int(os.getenv("MAC_BRIDGE_PORT", "8787"))
 
+GEMINI_31_FLASH_LIVE_PRICING = {
+    "source": "https://ai.google.dev/gemini-api/docs/pricing",
+    "model": "gemini-3.1-flash-live-preview",
+    "audio_input_per_min_usd": 0.005,
+    "audio_output_per_min_usd": 0.018,
+    "video_input_per_min_usd": 0.002,
+}
+
 
 class Settings(BaseModel):
     bind_host: str = Field(default_factory=lambda: os.getenv("MAC_BRIDGE_HOST", "127.0.0.1"))
@@ -79,9 +87,7 @@ class Settings(BaseModel):
         default_factory=lambda: os.getenv("MAC_BRIDGE_GEMINI_IMAGE_MODEL", "gemini-3.1-flash-image-preview")
     )
     gemini_live_model: str = Field(
-        default_factory=lambda: os.getenv(
-            "MAC_BRIDGE_GEMINI_LIVE_MODEL", "gemini-2.5-flash-native-audio-preview-12-2025"
-        )
+        default_factory=lambda: os.getenv("MAC_BRIDGE_GEMINI_LIVE_MODEL", "gemini-3.1-flash-live-preview")
     )
     gemini_live_timeout_seconds: float = Field(
         default_factory=lambda: float(os.getenv("MAC_BRIDGE_GEMINI_LIVE_TIMEOUT", "20"))
@@ -277,7 +283,7 @@ class GeminiLiveProbeRequest(BaseModel):
         default="Say one short friendly sentence to confirm Gemini Live is connected.", min_length=1, max_length=1_000
     )
     model: str | None = Field(default=None, max_length=160)
-    response_modality: str = Field(default="TEXT", pattern="^(TEXT|AUDIO)$")
+    response_modality: str = Field(default="AUDIO", pattern="^(TEXT|AUDIO)$")
     system: str | None = Field(
         default="You are Reachy, a warm family robot. Keep this probe under one sentence.", max_length=1_000
     )
@@ -315,7 +321,7 @@ async def tools() -> dict[str, Any]:
             "primary_cloud_reasoning": settings.codex_default_model,
             "primary_cloud_reasoning_backend": "codex-cli",
             "codex_reasoning_effort": settings.codex_default_reasoning_effort,
-            "premium_realtime_model": "gemini-live",
+            "premium_realtime_model": settings.gemini_live_model,
             "mac_ollama": "cloud-only" if settings.require_ollama_cloud else "cloud-and-local",
             "accepted_cloud_suffixes": ["-cloud", ":cloud"],
             "allowed_ollama_models": settings.allowed_ollama_models,
@@ -1141,7 +1147,7 @@ def _routing_policy() -> dict[str, Any]:
         "primary_cloud_reasoning": settings.codex_default_model,
         "primary_cloud_reasoning_backend": "codex-cli",
         "codex_reasoning_effort": settings.codex_default_reasoning_effort,
-        "premium_realtime": "gemini-live",
+        "premium_realtime": settings.gemini_live_model,
         "plain_fast_reasoning": settings.codex_default_model,
         "quick_screen_or_tool_actions": settings.codex_default_model,
         "playable_game_generation": settings.codex_default_model,
@@ -2556,24 +2562,65 @@ def _emotion_state_path() -> Path:
     return ROOT_DIR / ".state" / "emotion-state.json"
 
 
+def _gemini_live_cost_estimate(seconds: int, mode: str = "audio") -> float:
+    minutes = max(0, seconds) / 60
+    rate = (
+        GEMINI_31_FLASH_LIVE_PRICING["audio_input_per_min_usd"]
+        + GEMINI_31_FLASH_LIVE_PRICING["audio_output_per_min_usd"]
+    )
+    if mode == "audio_video":
+        rate += GEMINI_31_FLASH_LIVE_PRICING["video_input_per_min_usd"]
+    return round(minutes * rate, 4)
+
+
+def _gemini_live_spend_estimate(
+    state: dict[str, Any], today: str, used_seconds: int, cap_seconds: int
+) -> dict[str, Any]:
+    sessions = [
+        item
+        for item in state.get("sessions", [])
+        if str(item.get("timestamp", "")).startswith(today) and isinstance(item, dict)
+    ]
+    if sessions:
+        estimated_today = round(
+            sum(_gemini_live_cost_estimate(int(item.get("seconds", 0)), str(item.get("mode", "audio"))) for item in sessions),
+            4,
+        )
+    else:
+        estimated_today = _gemini_live_cost_estimate(used_seconds, "audio")
+    cap_audio = _gemini_live_cost_estimate(cap_seconds, "audio")
+    cap_audio_video = _gemini_live_cost_estimate(cap_seconds, "audio_video")
+    return {
+        "estimated_if_real_today_usd": estimated_today,
+        "daily_cap_audio_if_full_duplex_usd": cap_audio,
+        "daily_cap_audio_video_if_full_duplex_usd": cap_audio_video,
+        "monthly_audio_at_daily_cap_usd": round(cap_audio * 30, 2),
+        "monthly_audio_video_at_daily_cap_usd": round(cap_audio_video * 30, 2),
+        "assumption": "Conservative full-duplex estimate: user audio input plus continuous model audio output; video adds the listed video input per-minute rate.",
+    }
+
+
 def _gemini_live_status() -> dict[str, Any]:
     state = _read_gemini_live_state()
     today = time.strftime("%Y-%m-%d")
     used_seconds = int(state.get(today, {}).get("used_seconds", 0))
     cap_seconds = int(state.get("daily_cap_seconds", 120))
+    spend = _gemini_live_spend_estimate(state, today, used_seconds, cap_seconds)
     return {
         "enabled": False,
         "prototype": "dry-run",
         "provider": "gemini",
-        "model": "gemini-live",
+        "model": settings.gemini_live_model,
         "configured": bool(settings.gemini_api_key),
         "auth_note": "Use Gemini API auth for Live sessions. OpenAI Realtime is not assumed available through Codex OAuth.",
         "daily_cap_seconds": cap_seconds,
         "used_seconds_today": used_seconds,
         "remaining_seconds_today": max(0, cap_seconds - used_seconds),
+        "pricing": GEMINI_31_FLASH_LIVE_PRICING,
+        "spend_estimate": spend,
         "visible_indicator_required": True,
         "default_session_cap_seconds": 120,
-        "note": "Gemini Live is not streaming yet. This prototype logs capped dry-run sessions for UX and budget testing.",
+        "note": "Bridge streaming is still capped/dry-run here; POST /gemini/live/probe is the real connectivity and first-audio test.",
         "sessions": state.get("sessions", [])[-10:][::-1],
     }
 
@@ -2591,9 +2638,10 @@ def _gemini_live_session(payload: RealtimeSessionRequest) -> dict[str, Any]:
         "id": f"live_{uuid.uuid4().hex[:10]}",
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "provider": "gemini",
-        "model": "gemini-live",
+        "model": settings.gemini_live_model,
         "mode": payload.mode,
         "seconds": seconds,
+        "estimated_cost_if_real_usd": _gemini_live_cost_estimate(seconds, payload.mode),
         "dry_run": payload.dry_run,
         "note": _safe_text(payload.note, 500) if payload.note else None,
         "status": "simulated" if payload.dry_run else "blocked_not_implemented",
@@ -2640,20 +2688,32 @@ def _run_gemini_live_probe(payload: GeminiLiveProbeRequest) -> dict[str, Any]:
             config["system_instruction"] = payload.system
         text_parts: list[str] = []
         audio_bytes = 0
+        first_message_ms: int | None = None
+        first_audio_ms: int | None = None
         async with client.aio.live.connect(model=model, config=config) as session:
-            await session.send_client_content(
-                turns=types.Content(role="user", parts=[types.Part(text=payload.prompt)])
-            )
+            if hasattr(session, "send_realtime_input"):
+                await session.send_realtime_input(text=payload.prompt)
+            else:
+                await session.send_client_content(
+                    turns=types.Content(role="user", parts=[types.Part(text=payload.prompt)])
+                )
             async for message in session.receive():
+                if first_message_ms is None:
+                    first_message_ms = _elapsed_ms(started)
                 if getattr(message, "text", None):
                     text_parts.append(message.text)
                 server_content = getattr(message, "server_content", None)
                 model_turn = getattr(server_content, "model_turn", None) if server_content else None
                 for part in getattr(model_turn, "parts", []) or []:
+                    part_text = getattr(part, "text", None)
+                    if part_text:
+                        text_parts.append(part_text)
                     inline_data = getattr(part, "inline_data", None)
                     data = getattr(inline_data, "data", None) if inline_data else None
                     if data:
                         audio_bytes += len(data)
+                        if first_audio_ms is None:
+                            first_audio_ms = _elapsed_ms(started)
                 if server_content and getattr(server_content, "turn_complete", False):
                     break
         return {
@@ -2663,6 +2723,8 @@ def _run_gemini_live_probe(payload: GeminiLiveProbeRequest) -> dict[str, Any]:
             "response_modality": payload.response_modality,
             "text": "".join(text_parts).strip(),
             "audio_bytes": audio_bytes,
+            "first_message_ms": first_message_ms,
+            "first_audio_ms": first_audio_ms,
             "duration_ms": _elapsed_ms(started),
             "note": "This is a real server-side Gemini Live connection probe, not a dry-run counter.",
         }
